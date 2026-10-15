@@ -10,8 +10,9 @@ const tables = ['accounts', 'identities', 'sessions', 'google_challenges', 'emai
 export async function importSqlite(source, pool) {
   const client = await pool.connect();
   const counts = {};
-  source.exec('BEGIN');
+  let sourceTransaction = false;
   try {
+    source.exec('BEGIN'); sourceTransaction = true;
     await client.query('BEGIN');
     await client.query('SELECT pg_advisory_xact_lock(791604215)');
     for (const table of tables) {
@@ -28,8 +29,13 @@ export async function importSqlite(source, pool) {
       }
       counts[table] = rows.length;
     }
-    await client.query('COMMIT'); source.exec('COMMIT'); return counts;
-  } catch (error) { await client.query('ROLLBACK'); source.exec('ROLLBACK'); throw error; }
+    source.exec('COMMIT'); sourceTransaction = false;
+    await client.query('COMMIT'); return counts;
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    if (sourceTransaction) try { source.exec('ROLLBACK'); } catch {}
+    throw error;
+  }
   finally { client.release(); }
 }
 

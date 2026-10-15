@@ -21,7 +21,7 @@ function configuration() {
 try {
   docker(['run', '--rm', '-d', '--network', 'none', '--name', pgName, '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_USER=talk_test', '-e', 'POSTGRES_DB=talk_auth_test', 'postgres:16-bookworm']); pgStarted = true;
   for (let i = 0; ; i++) {
-    try { docker(['exec', pgName, 'pg_isready', '-U', 'talk_test', '-d', 'talk_auth_test']); break; }
+    try { docker(['exec', pgName, 'pg_isready', '-h', '127.0.0.1', '-U', 'talk_test', '-d', 'talk_auth_test']); break; }
     catch { if (i >= 40) throw new Error('Fixture not ready.'); await new Promise(resolve => setTimeout(resolve, 500)); }
   }
   step = 'run the production migration entry point from the built image';

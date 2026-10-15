@@ -42,7 +42,7 @@ export function inspectBuild(root = projectRoot) {
   const errors = [];
   const dist = path.join(root, 'dist');
   if (!existsSync(path.join(dist, 'index.html'))) return ['Build the frontend before deployment.'];
-  const privateNames = /FIREBASE_TEST_PHONE_NUMBER|FIREBASE_TEST_OTP|SMTP_PASSWORD|BEGIN (?:RSA )?PRIVATE KEY/;
+  const privateNames = /FIREBASE_TEST_PHONE_NUMBER|FIREBASE_TEST_OTP|SMTP_PASSWORD|PGPASSWORD|AUTH_COOKIE_SECRET|BEGIN (?:RSA )?PRIVATE KEY/;
   const walk = directory => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       if (entry.isSymbolicLink()) { errors.push('Do not publish symlinks in dist.'); continue; }
