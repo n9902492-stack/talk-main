@@ -1,0 +1,7 @@
+# Review template: build/upload only after approval. Supply a reviewed _IMAGE.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: [build, -f, backend/Dockerfile, -t, '${_IMAGE}', .]
+images: ['${_IMAGE}']
+substitutions:
+  _IMAGE: REPLACE_WITH_REVIEWED_IMAGE_URI

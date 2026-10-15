@@ -1,0 +1,26 @@
+# REVIEW TEMPLATE. Run only after provisioning and migration approval.
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: talk-auth-migrate
+spec:
+  template:
+    spec:
+      template:
+        metadata:
+          annotations:
+            run.googleapis.com/cloudsql-instances: talk-fc3dc:asia-south1:talk-auth-db
+        spec:
+          serviceAccountName: talk-auth-migrator@talk-fc3dc.iam.gserviceaccount.com
+          maxRetries: 0
+          timeoutSeconds: "300"
+          containers:
+            - image: asia-south1-docker.pkg.dev/talk-fc3dc/talk/talk-auth:RELEASE_TAG
+              command: [node]
+              args: [backend/src/migrate-production.mjs]
+              env:
+                - { name: PGHOST, value: "/cloudsql/talk-fc3dc:asia-south1:talk-auth-db" }
+                - { name: PGDATABASE, value: talk_auth }
+                - { name: PGUSER, value: talk_auth_migrator }
+                - name: PGPASSWORD
+                  valueFrom: { secretKeyRef: { name: talk-db-migrator-password, key: "1" } }
