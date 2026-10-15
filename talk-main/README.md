@@ -2,6 +2,15 @@
 
 React/Vite implementation of the supplied Stitch landing-page design, with webinar, booking, device-check, and meeting preview screens based on the supplied recording.
 
+## Architecture
+
+| Guide | What it explains |
+| --- | --- |
+| [FRONTEND.md](FRONTEND.md) | Screens, components, styles, routing, browser authentication and where to change the UI |
+| [BACKEND.md](BACKEND.md) | API endpoints, authentication flows, databases, sessions and development/production setup |
+
+Frontend code lives in `src/`; backend code lives in `server/`. Both use the existing root `package.json`. In development, `npm run dev` serves the website and authentication API together at http://localhost:3001.
+
 ## Run locally
 
 ```powershell
