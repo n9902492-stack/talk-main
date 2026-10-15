@@ -50,14 +50,14 @@ npm run test:auth                 # Existing API/mailer tests, isolated SQLite
 npm run test:auth:production      # Real local PostgreSQL 16 in a disposable Docker container
 npm run test:auth:hosting-browser # Browser + real API/cookies, simulated HTTPS Hosting proxy
 npm run test:hosting              # Production phone/reCAPTCHA guard checks
-node scripts/test-backend-image.mjs # Built image startup/restart; network-less local fixtures
+node scripts/test-backend-image.mjs --auth-tests # Offline image: 12 auth tests plus startup/restart
 npm run lint
 npm run hosting:prepare
 ```
 
 All 62 existing backend/mailer tests, 12 real-PostgreSQL production tests, 8 Hosting/production-mode checks, 20 password-manager unit tests, and Hosting-compatible/email/Google browser regressions passed. Lint and the production frontend build passed. The website frontend asset hashes remain unchanged.
 
-The PostgreSQL suite tests five-attempt limits, expiry, resend invalidation/cooldown, unverified-login blocking, one-session concurrent verification, persistence after pool restart, Google confirmation/separate accounts, returning phone login, and atomic SQLite import. The browser proxy forwards only `__session`. Google/Firebase credential verification and email delivery are fixtures in these regressions; they do not prove real Google login, Cloud SQL connectivity, SMTP delivery, hosted reCAPTCHA completion or real SMS delivery. The previously completed Firebase fictional-number flow remains a separate test.
+If Docker Desktop port forwarding is unavailable, use the offline image command above after building `talk-auth:local-check`; it runs the same 12 authentication tests inside the production image without exposing a database port. The PostgreSQL suite tests five-attempt limits, expiry, resend invalidation/cooldown, unverified-login blocking, one-session concurrent verification, persistence after pool restart, Google confirmation/separate accounts, returning phone login, and atomic SQLite import. The browser proxy forwards only `__session`. Google/Firebase credential verification and email delivery are fixtures in these regressions; they do not prove real Google login, Cloud SQL connectivity, SMTP delivery, hosted reCAPTCHA completion or real SMS delivery. The previously completed Firebase fictional-number flow remains a separate test.
 
 ## Prepared files and private settings
 

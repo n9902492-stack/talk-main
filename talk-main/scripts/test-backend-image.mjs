@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
 // Offline container smoke test. PostgreSQL and the app share loopback in a
 // network-less namespace: even accidental SMTP/Firebase calls cannot leave it.
@@ -23,6 +24,14 @@ try {
   for (let i = 0; ; i++) {
     try { docker(['exec', pgName, 'pg_isready', '-h', '127.0.0.1', '-U', 'talk_test', '-d', 'talk_auth_test']); break; }
     catch { if (i >= 40) throw new Error('Fixture not ready.'); await new Promise(resolve => setTimeout(resolve, 500)); }
+  }
+  if (process.argv.includes('--auth-tests')) {
+    step = 'run authentication regressions inside the offline production image';
+    const testsPath = fileURLToPath(new URL('../tests', import.meta.url));
+    const result = docker(['run', '--rm', ...pgArgs, '-e', 'TALK_POSTGRES_TEST=1', '--mount', `type=bind,source=${testsPath},target=/app/tests,readonly`, image, 'node', '--test', 'tests/production-auth.test.mjs']);
+    const summary = result.match(/^# (?:tests|pass|fail|skipped) \d+$/gm) || [];
+    if (!summary.includes('# pass 12') || !summary.includes('# fail 0')) throw new Error('Production regressions did not pass.');
+    console.log('PASS Offline real-PostgreSQL authentication regressions: 12 passed, 0 failed. Provider proofs and mail delivery are fixtures.');
   }
   step = 'run the production migration entry point from the built image';
   docker(['run', '--rm', ...pgArgs, image, 'node', 'server/migrate-production.mjs']);

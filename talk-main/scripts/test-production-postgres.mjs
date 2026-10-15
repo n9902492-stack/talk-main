@@ -11,10 +11,12 @@ let started = false; let step = 'start isolated local database';
 try {
   execFileSync('docker', ['run', '--rm', '-d', '--name', name, '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_USER=talk_test', '-e', 'POSTGRES_DB=talk_auth_test', '-p', '127.0.0.1::5432', 'postgres:16-bookworm'], { env: { ...process.env, POSTGRES_PASSWORD: password }, stdio: 'pipe', windowsHide: true });
   started = true;
+  step = 'resolve isolated database port';
   const binding = execFileSync('docker', ['port', name, '5432/tcp'], { encoding: 'utf8', windowsHide: true }).trim();
   if (!/^127\.0\.0\.1:\d+$/.test(binding)) throw new Error('Unexpected test port.');
   const env = { ...process.env, TALK_POSTGRES_TEST: '1', PGHOST: '127.0.0.1', PGPORT: binding.split(':')[1], PGUSER: 'talk_test', PGPASSWORD: password, PGDATABASE: 'talk_auth_test', PGSSLMODE: 'disable' };
   let ready = false;
+  step = 'wait for isolated database readiness';
   for (let i = 0; i < 40; i++) {
     const client = new pg.Client({ host: env.PGHOST, port: Number(env.PGPORT), user: env.PGUSER, password, database: env.PGDATABASE, connectionTimeoutMillis: 1000 });
     client.on('error', () => {});
