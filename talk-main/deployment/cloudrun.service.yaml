@@ -1,0 +1,57 @@
+# REVIEW TEMPLATE ONLY. No cloud resources have been created.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: talk-auth
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "2"
+        run.googleapis.com/cloudsql-instances: talk-fc3dc:asia-south1:talk-auth-db
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      serviceAccountName: talk-auth-runtime@talk-fc3dc.iam.gserviceaccount.com
+      containerConcurrency: 20
+      timeoutSeconds: 60
+      containers:
+        - image: asia-south1-docker.pkg.dev/talk-fc3dc/talk/talk-auth:RELEASE_TAG
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 12
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: APP_URL, value: "https://talk-fc3dc.web.app" }
+            - { name: AUTH_DB_DRIVER, value: postgres }
+            - { name: AUTH_COOKIE_MODE, value: hosting }
+            - { name: TRUSTED_PROXY_CIDRS, value: "127.0.0.1/8,::1/128,169.254.0.0/16" }
+            - { name: PGHOST, value: "/cloudsql/talk-fc3dc:asia-south1:talk-auth-db" }
+            - { name: PGDATABASE, value: talk_auth }
+            - { name: PGUSER, value: talk_auth }
+            - { name: PGPOOL_MAX, value: "5" }
+            - { name: FIREBASE_PROJECT_ID, value: talk-fc3dc }
+            # Public identifier; replace from your existing Google Web Client.
+            - { name: GOOGLE_CLIENT_ID, value: "125382244506-ihve90u4ale5obpf94p6oeb7vmjb9tgv.apps.googleusercontent.com" }
+            - { name: SMTP_HOST, value: smtp.gmail.com }
+            - { name: SMTP_PORT, value: "587" }
+            - name: PGPASSWORD
+              valueFrom: { secretKeyRef: { name: talk-db-password, key: "1" } }
+            - name: AUTH_COOKIE_SECRET
+              valueFrom: { secretKeyRef: { name: talk-cookie-key, key: "1" } }
+            - name: SMTP_USER
+              valueFrom: { secretKeyRef: { name: talk-smtp-user, key: "1" } }
+            - name: SMTP_PASSWORD
+              valueFrom: { secretKeyRef: { name: talk-smtp-password, key: "1" } }
+            - name: SMTP_FROM
+              valueFrom: { secretKeyRef: { name: talk-smtp-from, key: "1" } }

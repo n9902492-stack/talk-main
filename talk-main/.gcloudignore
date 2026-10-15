@@ -1,0 +1,15 @@
+.git
+.gitignore
+node_modules
+.firebase
+.env*
+**/.env*
+data
+artifacts
+dist
+public
+references
+tests
+deployment
+*.log
+**/service-account*.json

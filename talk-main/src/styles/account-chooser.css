@@ -1,0 +1,38 @@
+.account-chooser-page { min-height: 100vh; display: grid; place-items: center; padding: 40px; background: color-mix(in srgb, var(--color-accent-soft) 40%, var(--color-white)); color: var(--color-on-surface); }
+.account-chooser-shell { width: min(100%, 1420px); }
+.account-chooser-back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 22px; font-size: 13px; color: var(--color-secondary); }
+.account-chooser-back:hover { color: var(--color-deep-blue); }
+.account-chooser-card { overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: 36px; }
+.account-chooser-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 30px; border-bottom: 1px solid var(--color-outline-variant); font-size: 14px; font-weight: 500; }
+.account-chooser-header > span:last-child { display: inline-flex; align-items: center; gap: 8px; color: var(--color-deep-blue); font-size: 12px; }
+.account-chooser-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 70px; padding: 48px 44px 60px; }
+.account-chooser-logo { display: inline-flex; align-items: center; justify-content: center; min-width: 60px; height: 60px; padding: 8px; margin-bottom: 30px; border-radius: 15px; background: var(--color-deep-blue); color: var(--color-white); font-size: 20px; font-weight: 700; letter-spacing: -.045em; }
+.account-chooser-intro h1 { font-family: var(--font-headline-lg); font-size: clamp(32px, 3.5vw, 46px); line-height: 1.15; font-weight: 500; letter-spacing: -.035em; }
+.account-chooser-intro > p { margin-top: 24px; font-size: 18px; line-height: 1.6; }
+.account-chooser-intro > p strong { color: var(--color-deep-blue); font-weight: 500; }
+.account-chooser-options { min-width: 0; padding-top: 40px; }
+.account-chooser-profile { display: flex; align-items: center; gap: 16px; padding: 18px 0 24px; margin-bottom: 26px; border-bottom: 1px solid var(--color-outline-variant); }
+.account-chooser-profile:hover { color: var(--color-deep-blue); }
+.account-chooser-profile > svg { flex-shrink: 0; margin-left: auto; }
+.account-chooser-avatar { display: grid; place-items: center; flex-shrink: 0; overflow: hidden; width: 42px; height: 42px; border-radius: 50%; background: var(--color-accent-soft); color: var(--color-deep-blue); font-size: 16px; font-weight: 600; }
+.account-chooser-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.account-chooser-profile-copy { display: grid; min-width: 0; gap: 4px; overflow-wrap: anywhere; }
+.account-chooser-profile-copy strong { font-size: 18px; font-weight: 500; }
+.account-chooser-profile-copy > span { font-size: 13px; line-height: 1.6; }
+.account-chooser-profile-copy small { color: var(--color-secondary); font-size: 11px; line-height: 1.6; }
+.account-chooser-google h2 { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; font-size: 18px; line-height: 1.5; font-weight: 500; }
+.account-chooser-google h2 svg { flex-shrink: 0; color: var(--color-secondary); }
+.account-chooser-google .google-signin { max-width: 400px; margin-bottom: 0; }
+.account-chooser-google-help { margin-top: 14px; font-size: 12px; line-height: 1.7; color: var(--color-secondary); }
+.account-chooser-email { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--color-outline-variant); }
+.account-chooser-email a, .account-chooser-email button { display: inline-flex; align-items: center; gap: 8px; color: var(--color-deep-blue); font-size: 12px; font-weight: 500; }
+.account-chooser-email button:disabled { opacity: .65; cursor: wait; }
+.account-chooser-policy { margin-top: 40px; font-size: 12px; line-height: 1.8; color: var(--color-secondary); }
+.account-chooser-policy a { color: var(--color-deep-blue); }
+.account-chooser-policy a:hover, .account-chooser-email a:hover { text-decoration: underline; }
+.account-chooser-status { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 13px; color: var(--color-secondary); }
+.account-chooser-session-error { margin-bottom: 24px; font-size: 12px; line-height: 1.7; color: var(--color-error); }
+.account-chooser-session-error button { margin-top: 8px; }
+.account-chooser-footer { display: flex; justify-content: space-between; gap: 24px; padding: 20px 18px 0; color: var(--color-secondary); font-size: 11px; }
+@media (max-width: 900px) { .account-chooser-page { padding: 28px; }.account-chooser-body { gap: 36px; padding: 36px 30px 44px; }.account-chooser-intro h1 { font-size: 34px; } }
+@media (max-width: 650px) { .account-chooser-page { padding: 20px 16px; align-items: start; }.account-chooser-card { border-radius: 26px; }.account-chooser-header { padding: 18px 22px; font-size: 12px; }.account-chooser-header > span:last-child { font-size: 10px; gap: 5px; }.account-chooser-header svg { width: 14px; }.account-chooser-body { grid-template-columns: minmax(0, 1fr); gap: 26px; padding: 28px 24px 32px; }.account-chooser-logo { margin-bottom: 22px; }.account-chooser-intro h1 { font-size: 32px; }.account-chooser-intro > p { margin-top: 14px; font-size: 16px; }.account-chooser-options { padding-top: 0; }.account-chooser-google h2 { font-size: 16px; }.account-chooser-policy { margin-top: 28px; }.account-chooser-footer { padding-inline: 8px; } }

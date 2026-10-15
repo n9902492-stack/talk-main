@@ -1,0 +1,12 @@
+node_modules/
+.firebase/
+build/
+dist/
+coverage/
+.npm-cache/
+artifacts/qa/
+.DS_Store
+*.log
+.env*
+!.env.example
+data/

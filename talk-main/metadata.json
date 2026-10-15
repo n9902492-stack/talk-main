@@ -1,0 +1,6 @@
+{
+  "name": "Talk — Next-Gen Video Meetings & Webinars Platform",
+  "description": "Run online meetings and webinars like a pro. The studio-grade platform for stand-out customer-facing sessions, interactive workshops, and live product demos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

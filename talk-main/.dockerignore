@@ -1,0 +1,14 @@
+node_modules
+.git
+.firebase
+.env*
+**/.env*
+data
+artifacts
+dist
+public
+references
+tests
+deployment
+*.log
+**/service-account*.json

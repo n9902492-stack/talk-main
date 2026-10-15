@@ -1,0 +1,30 @@
+@media (max-width: 700px) {
+  .camera-placeholder { padding: 20px 20px 72px; }
+  .camera-placeholder .preview-avatar { width: 64px; height: 64px; font-size: 28px; margin-bottom: 14px; }
+  .camera-placeholder .preview-avatar svg { width: 30px; height: 30px; }
+  .camera-placeholder h3 { font-size: 14px; }
+  .camera-placeholder p { font-size: 11px; }
+  .preview-name { max-width: calc(50% - 68px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #workspaces input { min-width: 0; }
+  #workspaces .gap-3 > .cursor-pointer { flex-shrink: 0; }
+  #workspaces label + .gap-3 { flex-wrap: wrap; }
+  #meeting-showcase .h-12 { gap: 8px; }
+  #meeting-showcase .h-12 > div:first-child { min-width: 0; }
+  #meeting-showcase .h-12 > div:first-child > div:first-child,
+  #meeting-showcase .h-12 > div:first-child > span,
+  #meeting-showcase .h-12 > div:last-child > span { display: none; }
+  #meeting-showcase .h-12 .font-label-md { display: block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #meeting-showcase .h-16 { height: auto; flex-wrap: wrap; gap: 10px; padding-block: 14px; }
+  #meeting-showcase .h-16 > div:nth-child(2) { order: 3; width: 100%; justify-content: center; }
+  .hero-whiteboard-stage { height: auto; padding: 0; }
+  .hero-whiteboard-video { position: relative; display: block; height: auto; aspect-ratio: 5 / 2; }
+  .hero-whiteboard-caption { order: -1; gap: 8px; padding: 12px; }
+  .hero-whiteboard-caption > div:first-child { min-width: 0; padding: 6px 8px; }
+  .hero-whiteboard-caption > div:first-child > span:last-child { font-size: 10px; line-height: 1.3; }
+  .hero-whiteboard-caption > span { font-size: 10px; }
+  #pricing > div > div:last-child { flex-wrap: wrap; justify-content: center; gap: 12px; }
+  #pricing > div > div:last-child svg, #pricing > div > div:last-child .material-symbols-outlined { flex-shrink: 0; }
+  .banner-eyebrow { font-size: 32px; letter-spacing: -.03em; margin-bottom: 20px; }
+  .webinar-banner h1 { font-size: 22px; line-height: 1.4; }
+  .webinar-banner { min-height: 300px; padding-top: 48px; }
+}

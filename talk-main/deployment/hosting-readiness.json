@@ -1,0 +1,12 @@
+{
+  "hostingCookieCompatibilityVerified": false,
+  "durableDatabaseVerified": false,
+  "trustedProxyRateLimitsVerified": false,
+  "authRegressionVerified": false,
+  "implementationTestedLocally": {
+    "postgresAccountsSessionsAndImport": true,
+    "encryptedHostingCookie": true,
+    "trustedProxyBoundary": true,
+    "emailGooglePhoneRegression": true
+  }
+}

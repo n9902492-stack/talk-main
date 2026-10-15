@@ -1,0 +1,48 @@
+import { ArrowLeft, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
+import HeroGlobe from './HeroGlobe';
+
+type AuthLayoutProps = {
+  page: 'signin' | 'signup' | 'verify';
+  title: string;
+  description: string;
+  Icon: LucideIcon;
+  children: ReactNode;
+  footer: ReactNode;
+};
+
+export default function AuthLayout({ page, title, description, Icon, children, footer }: AuthLayoutProps) {
+  return <main className={`signin-page ${page === 'signup' ? 'signup-page' : ''}`}>
+    <section className="signin-visual" aria-labelledby={`${page}-visual-heading`}>
+      <div className="signin-cloud" aria-hidden="true" />
+      <a href="/" className="signin-brand" aria-label="Talk home">Talk</a>
+      <div className="signin-visual-copy">
+        <span className="signin-eyebrow">YOUR SPACE. YOUR STAGE.</span>
+        <h2 id={`${page}-visual-heading`}>Great conversations<br />start here.</h2>
+        <p>Your meetings, webinars and workspaces.<br />All connected with Talk.</p>
+      </div>
+      <div className="signin-globe"><HeroGlobe /></div>
+      <div className="signin-visual-proof">
+        <div className="signin-proof-portraits" aria-hidden="true">
+          {[5, 7, 14].map(index => <img key={index} src={`/assets/stitch/image-${String(index).padStart(2, '0')}.jpg`} alt="" />)}
+        </div>
+        <p>Join over 32,000 teams and creators.</p>
+      </div>
+    </section>
+    <section className="signin-form-side" aria-labelledby={`${page}-heading`}>
+      <div className="signin-form-nav">
+        <a href="/" className="signin-mobile-brand" aria-label="Talk home">Talk</a>
+        <a href="/" className="signin-back"><ArrowLeft size={16} />Back to Talk</a>
+      </div>
+      <div className="signin-card">
+        <div className="signin-card-icon" aria-hidden="true"><Icon size={22} /></div>
+        <h1 id={`${page}-heading`}>{title}</h1>
+        <p className="signin-card-description">{description}</p>
+        {children}
+        <div className="signin-card-divider" />
+        <p className="signin-new-account">{footer}</p>
+      </div>
+      <div className="signin-page-footer"><span>© 2026 Talk</span><a href="/#security">Privacy &amp; security</a></div>
+    </section>
+  </main>;
+}
