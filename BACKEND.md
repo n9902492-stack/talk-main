@@ -141,7 +141,7 @@ npm run lint
 npm run build
 ```
 
-Root `start`, migration and SMTP scripts delegate to `@talk/backend`. Run operator commands from the root so relative import/backup paths are unambiguous. Backend modules locate the repository root from their own file paths, preserving `.env.local` and `data/talk.sqlite` even when started through the workspace command.
+Root `start`, migration and SMTP scripts delegate to `@talk/backend`; npm executes workspace scripts from `backend/`. Use an absolute `SQLITE_IMPORT_PATH` for operator imports so it resolves consistently whether you invoke Node directly or use npm. Backend modules locate the repository root from their own file paths, preserving `.env.local` and `data/talk.sqlite` even when started through the workspace command.
 
 When Docker Desktop port forwarding is unavailable, the same PostgreSQL tests can run entirely inside the backend image:
 
