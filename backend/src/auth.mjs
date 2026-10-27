@@ -6,6 +6,19 @@ import { openAuthDatabase } from './database.mjs';
 import { asyncDatabase } from './async-database.mjs';
 import { hostingCookies } from './hosting-cookies.mjs';
 import { clientIpResolver } from './client-ip.mjs';
+import { validMeetingName } from './meetings.mjs';
+import { createMeetingManagement, MeetingError } from './meeting-management.mjs';
+import { createMeetingGateway } from './meeting-gateway.mjs';
+import { createMeetingRecordings, mountRecordingRoutes } from './meeting-recordings.mjs';
+import { createMeetingAssistant } from './meeting-assistant.mjs';
+import { mountAssistantRoutes } from './assistant-routes.mjs';
+import { createWhiteboards } from './whiteboards.mjs';
+import { mountWhiteboardRoutes } from './whiteboard-routes.mjs';
+import { createWhiteboardAI } from './whiteboard-ai.mjs';
+import { mountWhiteboardAIRoutes } from './whiteboard-ai-routes.mjs';
+import { mountPasswordReset } from './password-reset.mjs';
+import { mountScheduling } from './scheduling/routes.mjs';
+import { avatarDescriptor, avatarMaxBytes, normalizeAvatar, normalizeBackgroundImage, validAvatarChoice } from './avatars.mjs';
 const CHALLENGE_COOKIE = 'talk_auth_challenge';
 const SESSION_COOKIE = 'talk_session';
 const VERIFICATION_COOKIE = 'talk_email_verification';
@@ -128,7 +141,13 @@ export function createAuthApp({
   cookieMode = 'native',
   cookieSecret,
   previousCookieSecret,
-  trustedProxyCidrs = ''
+  trustedProxyCidrs = '',
+  meetings,
+  recordings: recordingRuntime,
+  assistant: assistantRuntime,
+  whiteboards: whiteboardRuntime = true,
+  whiteboardIntelligence: whiteboardAIRuntime = {},
+  scheduling: schedulingRuntime = false
 } = {}) {
   const db = asyncDatabase(database || openAuthDatabase(databasePath || dbFilename));
   const resolveClientIp = clientIpResolver(trustedProxyCidrs);
@@ -151,7 +170,28 @@ export function createAuthApp({
   });
   const dummyPassword = hashSecret(token());
   const app = express();
-  app.locals.closeAuthDatabase = () => {
+  let passwordReset;
+  const meetingManagement = meetings ? createMeetingManagement({ db, service: meetings, now }) : null;
+  const recordingService = meetings ? createMeetingRecordings({ db, service: meetings, manager: meetingManagement, runtime: recordingRuntime, now }) : null;
+  meetingManagement?.setRecordingGuard(recordingService);
+  app.locals.recordings = recordingService;
+  const assistantService = meetings && assistantRuntime !== false ? createMeetingAssistant({ db, manager: meetingManagement, now, ...assistantRuntime }) : null;
+  recordingService?.setAssistantGuard(assistantService);
+  app.locals.assistant = assistantService;
+  const whiteboardService = meetings && whiteboardRuntime !== false ? createWhiteboards({ db, manager: meetingManagement, service: meetings, now }) : null;
+  app.locals.whiteboards = whiteboardService;
+  const whiteboardIntelligence = whiteboardService && whiteboardAIRuntime !== false ? createWhiteboardAI({db,whiteboards:whiteboardService,now,...whiteboardAIRuntime}) : null;
+  app.locals.whiteboardIntelligence = whiteboardIntelligence;
+  const meetingGateway = meetings ? createMeetingGateway({ db, manager: meetingManagement, service: meetings, origins: trustedOrigins }) : null;
+  app.locals.attachMeetingGateway = server => meetingGateway?.attach(server);
+  app.locals.closeAuthDatabase = async () => {
+    await app.locals.schedulingShutdown?.();
+    await passwordReset?.shutdown();
+    await whiteboardIntelligence?.shutdown();
+    whiteboardService?.shutdown();
+    await assistantService?.shutdown();
+    await recordingService?.shutdown();
+    meetingGateway?.shutdown();
     if (!database) return db.close();
   };
   const cookieOptions = {
@@ -215,6 +255,7 @@ export function createAuthApp({
       id: account.id,
       name: account.name,
       email: account.email,
+      avatar: avatarDescriptor(await query('SELECT * FROM account_avatars WHERE account_id=?', accountId)),
       ...(account.picture ? {
         picture: account.picture
       } : {}),
@@ -431,6 +472,7 @@ export function createAuthApp({
     res.json({
       configured: Boolean(googleClientId),
       emailConfigured: Boolean(emailMailer.configured),
+      whiteboardConfigured: Boolean(whiteboardService),
       ...(googleClientId ? {
         clientId: googleClientId
       } : {}),
@@ -660,6 +702,8 @@ export function createAuthApp({
       throw error;
     }
   }));
+  passwordReset=mountPasswordReset({app,db,now,token,digest,cookieHash,cookieOptions,hashSecret,verifySecret,normalizedEmail,validPassword,generateCode,emailMailer,validOrigin,requireJson,json,publicCsrf,safeAsync,constantTimeEqual,rateLimited,fail});
+  app.locals.passwordReset=passwordReset;
   app.post('/api/auth/email/signup', validOrigin, requireJson, json, safeAsync(publicCsrf), safeAsync(async (req, res) => {
     const email = normalizedEmail(req.body?.email);
     if (await rateLimited(req, res, 'signup', email, {
@@ -876,10 +920,130 @@ export function createAuthApp({
       csrfToken: null
     });
   }));
+  const meetingSession = async (req, res) => {
+    const session = await getSession(req);
+    if (!session) { fail(res, 401, 'sign_in_required', 'Sign in to Talk before joining this meeting.'); return null; }
+    if (session.requires_confirmation) { fail(res, 403, 'confirmation_required', 'Finish confirming your Talk sign-in before joining.'); return null; }
+    const profile = await userProfile(session.account_id, session.auth_method);
+    if (!profile || !profile.emailVerified && !profile.hasPhone) { fail(res, 403, 'verification_required', 'Verify your Talk account before joining.'); return null; }
+    if (!meetings) { fail(res, 404, 'meeting_not_found', 'Meeting service is unavailable.'); return null; }
+    return session;
+  };
+  if (schedulingRuntime !== false && meetingManagement) mountScheduling({app,db,manager:meetingManagement,now,origins:trustedOrigins,secureCookies,hostSession:meetingSession,validOrigin,safeAsync,rateLimited,...schedulingRuntime});
+  app.get('/api/auth/meetings/:meetingId', safeAsync(async (req, res) => {
+    const session = await meetingSession(req, res);
+    if (!session) return;
+    res.json({ ...await meetingManagement.details(req.params.meetingId, session), configured: meetings.configured, csrfToken: session.csrf_token });
+  }));
+  app.post('/api/auth/meetings/:meetingId/token', validOrigin, requireJson, json, safeAsync(async (req, res) => {
+    const session = await meetingSession(req, res);
+    if (!session) return;
+    if (!constantTimeEqual(req.get('X-CSRF-Token'), session.csrf_token)) return fail(res, 403, 'invalid_session', 'Your session changed. Please sign in again.');
+    if (await rateLimited(req, res, 'meeting-token', session.account_id, { email: 20, ip: 60, window: 60000 })) return;
+    if (!validMeetingName(req.body?.displayName)) return fail(res, 400, 'invalid_display_name', 'Enter a display name between 1 and 80 characters.');
+    if (!meetings.configured) return fail(res, 503, 'meeting_not_configured', 'The meeting server is not configured yet. Please try again later.');
+    const result = await meetingManagement.access(req.params.meetingId, session, req.body.displayName, [...trustedOrigins][0]);
+    res.status(result.joinState ? 202 : 200).json(result);
+  }));
+  app.get('/api/auth/meetings/:meetingId/state', safeAsync(async (req, res) => {
+    const session = await meetingSession(req, res); if (!session) return;
+    if (await rateLimited(req, res, 'meeting-state', session.account_id, { email: 600, ip: 4000, window: 60000 })) return;
+    res.json({ ...await meetingManagement.snapshot(req.params.meetingId, session), csrfToken: session.csrf_token });
+  }));
+  const meetingWrite = handler => [validOrigin, requireJson, json, safeAsync(async (req, res) => {
+    const session = await meetingSession(req, res); if (!session) return;
+    if (!constantTimeEqual(req.get('X-CSRF-Token'), session.csrf_token)) return fail(res, 403, 'invalid_session', 'Your Talk session changed. Please sign in again.');
+    if (await rateLimited(req, res, 'meeting-action', session.account_id, { email: 120, ip: 1200, window: 60000 })) return;
+    await handler(req, res, session);
+  })];
+  if (recordingService) mountRecordingRoutes({ app, recordings: recordingService, meetingSession, meetingWrite, safeAsync, rateLimited });
+  const assistantWrite = handler => [validOrigin, requireJson, express.json({ limit: '1mb' }), safeAsync(async (req, res) => {
+    const session = await meetingSession(req, res); if (!session) return;
+    if (!constantTimeEqual(req.get('X-CSRF-Token'), session.csrf_token)) return fail(res, 403, 'invalid_session', 'Your Talk session changed. Please sign in again.');
+    if (await rateLimited(req, res, 'assistant-write', session.account_id, { email: 30, ip: 120, window: 60000 })) return;
+    await handler(req, res, session);
+  })];
+  mountAssistantRoutes({ app, assistant: assistantService, meetingSession, assistantWrite, safeAsync });
+  const whiteboardWrite = (handler, category = 'edit') => [validOrigin, requireJson, express.json({ limit: '256kb' }), safeAsync(async (req,res) => {
+    const session = await meetingSession(req,res); if (!session) return;
+    res.set('Cache-Control','no-store');
+    if (!constantTimeEqual(req.get('X-CSRF-Token'), session.csrf_token)) return fail(res,403,'invalid_session','Refresh Talk before changing this whiteboard.');
+    if (await rateLimited(req,res,`whiteboard-${category}`,session.account_id,{email:category === 'cursor' ? 360 : 120,ip:category === 'cursor' ? 2400 : 800,window:60000})) return;
+    await handler(req,res,session);
+  })];
+  mountWhiteboardRoutes({app,whiteboards:whiteboardService,meetingSession,write:whiteboardWrite,validOrigin,safeAsync,rateLimited,constantTimeEqual,fail});
+  mountWhiteboardAIRoutes({app,intelligence:whiteboardIntelligence,meetingSession,write:whiteboardWrite,safeAsync,rateLimited,fail});
+  app.post('/api/auth/meetings', ...meetingWrite(async (req, res, session) => {
+    if (await rateLimited(req, res, 'meeting-create', session.account_id, { email: 10, ip: 40, window: 60000 })) return;
+    res.status(201).json(await meetingManagement.create(session, { title: req.body?.title, approvalRequired: req.body?.approvalRequired }));
+  }));
+  app.post('/api/auth/meetings/:meetingId/create', ...meetingWrite(async (req, res, session) => {
+    if (req.params.meetingId !== 'talk-workshop') return fail(res, 404, 'meeting_not_found', 'Create a new meeting instead.');
+    res.status(201).json(await meetingManagement.create(session, { id: req.params.meetingId, title: req.body?.title, approvalRequired: req.body?.approvalRequired }));
+  }));
+  app.post('/api/auth/meetings/:meetingId/actions', ...meetingWrite(async (req, res, session) => {
+    if (req.body?.action === 'reaction' && await rateLimited(req, res, `meeting-reaction:${req.params.meetingId}`, session.account_id, { email: 5, ip: 100, window: 10000 })) return;
+    res.json(await meetingManagement.action(req.params.meetingId, session, req.body));
+  }));
+  const profileWrite = safeAsync(async (req, res, next) => {
+    const session = await getSession(req);
+    if (!session || session.requires_confirmation) return fail(res, 401, 'sign_in_required', 'Sign in to update your profile.');
+    if (!constantTimeEqual(req.get('X-CSRF-Token'), session.csrf_token)) return fail(res, 403, 'invalid_csrf', 'Refresh Talk and try again.');
+    if (await rateLimited(req, res, req.path.startsWith('/api/auth/profile/background') ? 'background-update' : 'avatar-update', session.account_id, { email: 20, ip: 100, window: 60000 })) return;
+    req.avatarSession = session; next();
+  });
+  const saveAvatar = async (req, res, kind, presetId = null, image = null) => {
+    const session = req.avatarSession;
+    await run('INSERT INTO account_avatars(account_id,kind,preset_id,image_data,version,updated_at) VALUES (?,?,?,?,?,?) ON CONFLICT(account_id) DO UPDATE SET kind=excluded.kind,preset_id=excluded.preset_id,image_data=excluded.image_data,version=excluded.version,updated_at=excluded.updated_at', session.account_id, kind, presetId, image, randomUUID(), now());
+    if (meetingManagement) await meetingManagement.notifyProfileChange(session.account_id);
+    res.json({ user: await userProfile(session.account_id, session.auth_method) });
+  };
+  app.post('/api/auth/profile/avatar', validOrigin, profileWrite, requireJson, json, safeAsync(async (req, res) => {
+    if (!validAvatarChoice(req.body)) return fail(res, 400, 'invalid_avatar', 'Choose an available Talk avatar.');
+    await saveAvatar(req, res, req.body.kind, req.body.kind === 'preset' ? req.body.presetId : null);
+  }));
+  app.post('/api/auth/profile/avatar/image', validOrigin, profileWrite, express.raw({ type: () => true, limit: avatarMaxBytes }), safeAsync(async (req, res) => {
+    let image;
+    try { image = await normalizeAvatar(req.body, req.get('Content-Type')); }
+    catch { return fail(res, 400, 'invalid_avatar_image', 'Choose a still JPEG, PNG or WebP image under 2 MB and 10 megapixels.'); }
+    await saveAvatar(req, res, 'upload', null, image);
+  }));
+  app.get('/api/auth/avatars/:accountId/image', safeAsync(async (req, res) => {
+    const session = await getSession(req);
+    if (!session || session.requires_confirmation) return fail(res, 401, 'sign_in_required', 'Sign in to view this avatar.');
+    // Uploaded images are private to the owner and admitted peers in active meetings.
+    const peer = req.params.accountId === session.account_id || await query("SELECT 1 FROM talk_meeting_members a JOIN talk_meeting_members b ON a.meeting_id=b.meeting_id JOIN talk_meetings m ON m.id=a.meeting_id WHERE a.account_id=? AND b.account_id=? AND a.admission='admitted' AND b.admission='admitted' AND m.status='active' LIMIT 1", session.account_id, req.params.accountId);
+    const avatar = peer && await query("SELECT image_data FROM account_avatars WHERE account_id=? AND kind='upload'", req.params.accountId);
+    if (!avatar?.image_data) return fail(res, 404, 'avatar_unavailable', 'This avatar is unavailable.');
+    res.type('image/webp').send(Buffer.from(avatar.image_data, 'base64'));
+  }));
+  app.post('/api/auth/profile/background/image', validOrigin, profileWrite, express.raw({ type: () => true, limit: avatarMaxBytes }), safeAsync(async (req, res) => {
+    let image;
+    try { image = await normalizeBackgroundImage(req.body, req.get('Content-Type')); }
+    catch { return fail(res, 400, 'invalid_background_image', 'Choose a still JPEG, PNG or WebP background under 2 MB and 10 megapixels.'); }
+    const version = randomUUID();
+    await run('INSERT INTO account_backgrounds(account_id,image_data,version,updated_at) VALUES (?,?,?,?) ON CONFLICT(account_id) DO UPDATE SET image_data=excluded.image_data,version=excluded.version,updated_at=excluded.updated_at', req.avatarSession.account_id, image, version, now());
+    res.json({ version, imageUrl: `/api/auth/profile/background/image?v=${version}` });
+  }));
+  app.get('/api/auth/profile/background', safeAsync(async (req, res) => {
+    const session = await getSession(req);
+    if (!session || session.requires_confirmation) return fail(res, 401, 'sign_in_required', 'Sign in to use a custom background.');
+    const image = await query('SELECT version FROM account_backgrounds WHERE account_id=?', session.account_id);
+    res.json(image ? { version: image.version, imageUrl: `/api/auth/profile/background/image?v=${image.version}` } : { version: null });
+  }));
+  app.get('/api/auth/profile/background/image', safeAsync(async (req, res) => {
+    const session = await getSession(req);
+    if (!session || session.requires_confirmation) return fail(res, 401, 'sign_in_required', 'Sign in to use a custom background.');
+    const image = await query('SELECT image_data FROM account_backgrounds WHERE account_id=?', session.account_id);
+    if (!image) return fail(res, 404, 'background_unavailable', 'Upload a background first.');
+    res.type('image/webp').send(Buffer.from(image.image_data, 'base64'));
+  }));
+  app.get('/api/auth/meeting-signal/*', (_req, res) => fail(res, 403, 'meeting_access_denied', 'The meeting connection is unavailable. Return to Talk to request access.'));
   app.use('/api/auth', (_req, res) => fail(res, 404, 'not_found', 'This authentication route does not exist.'));
   app.use('/api/auth', (error, _req, res, next) => {
     if (!error) return next();
-    if (error.type === 'entity.too.large') return fail(res, 413, 'payload_too_large', 'The sign-in request was too large.');
+    if (error instanceof MeetingError) return fail(res, error.status, error.code, error.message);
+    if (error.type === 'entity.too.large') return fail(res, 413, 'payload_too_large', ['/api/auth/profile/avatar/image','/api/auth/profile/background/image'].includes(_req.path) ? 'The image is too large. Choose a picture under 2 MB.' : 'The sign-in request was too large.');
     if (error.type === 'entity.parse.failed') return fail(res, 400, 'invalid_json', 'The sign-in request could not be read.');
     // Never echo/log request bodies, passwords, codes or transport error details.
     return fail(res, 500, 'server_error', 'The sign-in request could not be completed. Please try again.');

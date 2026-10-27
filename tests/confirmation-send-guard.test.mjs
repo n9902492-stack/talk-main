@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync} from 'node:fs';import path from 'node:path';import {DatabaseSync} from 'node:sqlite';
+import {reserveConfirmationAttempt,completeConfirmationAttempt} from '../scripts/confirmation-send-guard.mjs';
+import {Worker} from 'node:worker_threads';
+function fixture(){const dir=mkdtempSync(path.resolve('artifacts/qa/confirmation-guard-')),file=path.join(dir,'guard.sqlite'),db=new DatabaseSync(file);db.exec('CREATE TABLE confirmation_attempt(scope TEXT PRIMARY KEY,fingerprint TEXT,consumed INTEGER,status TEXT)');db.prepare("INSERT INTO confirmation_attempt VALUES ('synthetic','reviewed',0,'awaiting_approval')").run();db.close();return file;}
+test('only one reservation succeeds and a restarted caller cannot send again',()=>{const f=fixture();reserveConfirmationAttempt(f,'synthetic','reviewed');assert.throws(()=>reserveConfirmationAttempt(f,'synthetic','reviewed'));completeConfirmationAttempt(f,'synthetic','smtp_accepted');assert.throws(()=>reserveConfirmationAttempt(f,'synthetic','reviewed'));});
+test('changed message and another booking fail without consuming the matching review',()=>{const f=fixture();assert.throws(()=>reserveConfirmationAttempt(f,'synthetic','changed'));assert.throws(()=>reserveConfirmationAttempt(f,'other','reviewed'));reserveConfirmationAttempt(f,'synthetic','reviewed');});
+test('authentication failures and ambiguous sends cannot be automatically retried',()=>{for(const status of ['preflight_failed_no_send','failed_or_acceptance_unknown']){const f=fixture();reserveConfirmationAttempt(f,'synthetic','reviewed');completeConfirmationAttempt(f,'synthetic',status);assert.throws(()=>reserveConfirmationAttempt(f,'synthetic','reviewed'));const d=new DatabaseSync(f,{readOnly:true});try{assert.equal(d.prepare('SELECT consumed FROM confirmation_attempt').get().consumed,1);}finally{d.close();}}});
+test('independent concurrent callers reserve only one attempt; an interrupted reserved state stays consumed',async()=>{
+ const file=fixture(),module=new URL('../scripts/confirmation-send-guard.mjs',import.meta.url).href;
+ const contender=()=>new Promise((resolve,reject)=>{const worker=new Worker(`const {parentPort,workerData}=require('node:worker_threads');import(workerData.module).then(m=>{try{m.reserveConfirmationAttempt(workerData.file,'synthetic','reviewed');parentPort.postMessage(true);}catch{parentPort.postMessage(false);}}).catch(()=>parentPort.postMessage(false));`,{eval:true,workerData:{file,module}});worker.once('message',resolve);worker.once('error',reject);});
+ const results=await Promise.all([contender(),contender()]);assert.equal(results.filter(Boolean).length,1);
+ // Simulate a process that stopped after reservation and before recording its result.
+ assert.throws(()=>reserveConfirmationAttempt(file,'synthetic','reviewed'));
+ const db=new DatabaseSync(file,{readOnly:true});try{assert.deepEqual({...db.prepare('SELECT consumed,status FROM confirmation_attempt').get()},{consumed:1,status:'reserved'});}finally{db.close();}
+});

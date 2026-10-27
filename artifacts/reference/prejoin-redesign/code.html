@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-950 text-slate-100 antialiased" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Talk - Social Media Marketing Workshop</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef6ff',
+              100: '#d9eaff',
+              200: '#bcdbff',
+              300: '#8ec3ff',
+              400: '#599eff',
+              500: '#3277fc',
+              600: '#1d57f0',
+              700: '#1541dd',
+              800: '#1736b2',
+              900: '#18318c',
+              950: '#0b132b',
+            },
+            canvas: {
+              base: '#080d1a',
+              card: '#0e172e',
+              border: '#1e2d54',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          boxShadow: {
+            'glow-blue': '0 0 35px -5px rgba(50, 119, 252, 0.25)',
+            'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.45)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Typography & Inter Font Embed -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="custom-enhancements">
+    /* Subtle radial background glow for ambient atmosphere */
+    .bg-stage-radial {
+      background: radial-gradient(circle at 50% 40%, #162447 0%, #0d152b 55%, #080d1a 100%);
+    }
+
+    /* Soft backdrop blur filter fallback */
+    .glass-dock {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Custom subtle pulse indicator */
+    @keyframes gentlePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.15); }
+    }
+    .pulse-dot {
+      animation: gentlePulse 2.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col bg-slate-950 font-sans select-none overflow-hidden text-slate-100">
+<!-- BEGIN: MainHeader -->
+<header class="h-16 px-6 flex items-center justify-between border-b border-blue-900/20 bg-slate-950/80 backdrop-blur-md z-30" data-purpose="top-meeting-bar">
+<!-- Left Section: Status, Focus, & Title -->
+<div class="flex items-center space-x-4">
+<!-- Talk Logo Badge -->
+<div class="flex items-center space-x-2.5 pr-3 border-r border-slate-800">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-sky-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="font-bold tracking-tight text-white text-base">Talk</span>
+</div>
+<!-- Connection Status Indicator -->
+<div class="flex items-center space-x-2 text-xs font-medium text-slate-300 bg-slate-900/90 py-1.5 px-3 rounded-full border border-blue-500/20 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+<span>Connected</span>
+<span class="text-slate-500">·</span>
+<span class="text-blue-400 font-mono text-[11px]">18ms HD</span>
+</div>
+<!-- Meeting Name -->
+<div class="hidden md:flex items-center space-x-2">
+<span class="text-slate-600">/</span>
+<h1 class="text-sm font-semibold text-slate-200 tracking-tight max-w-[260px] lg:max-w-md truncate" title="Social Media Marketing Workshop">
+          Social Media Marketing Workshop
+        </h1>
+</div>
+<!-- Focus Speaker Toggle Pill -->
+<button class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/30 transition shadow-sm active:scale-95" title="Switch stage layout" type="button">
+<svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Focus speaker</span>
+</button>
+</div>
+<!-- Right Section: Security Badge & Call Duration -->
+<div class="flex items-center space-x-3">
+<!-- Meeting Duration Clock -->
+<div class="px-2.5 py-1 text-xs font-mono font-medium tracking-wider text-slate-300 bg-slate-900/60 rounded-md border border-slate-800">
+        04:12
+      </div>
+<!-- Security / Encryption Badge -->
+<div class="flex items-center space-x-1.5 text-xs font-medium text-slate-400 bg-slate-900/40 border border-slate-800/80 px-3 py-1.5 rounded-full">
+<svg class="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" fill-rule="evenodd"></path>
+</svg>
+<span class="hidden sm:inline">Secure meeting access</span>
+<span class="sm:hidden">Secured</span>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainMeetingStage -->
+<main class="flex-1 flex flex-col p-4 sm:p-6 lg:p-7 relative overflow-hidden" data-purpose="meeting-viewport">
+<!-- Central Video / Camera-Off Container -->
+<div class="relative flex-1 w-full max-w-7xl mx-auto rounded-3xl bg-stage-radial border border-blue-500/20 shadow-2xl flex flex-col items-center justify-center overflow-hidden transition-all duration-300">
+<!-- Subtle Ambient Lighting Glow in Center -->
+<div class="absolute inset-0 bg-gradient-to-t from-blue-950/30 via-transparent to-blue-900/10 pointer-events-none"></div>
+<!-- Stage Center Content: Camera-Off Avatar State -->
+<div class="relative z-10 flex flex-col items-center justify-center text-center px-4" data-purpose="avatar-camera-off-indicator">
+<!-- Large Avatar with Pulsing Outer Glow -->
+<div class="relative group cursor-pointer mb-5">
+<!-- Ambient Ring Glow -->
+<div class="absolute -inset-1.5 rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 opacity-60 blur-md group-hover:opacity-90 transition duration-300"></div>
+<!-- Avatar Disc -->
+<div class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-blue-400/50 flex items-center justify-center shadow-inner">
+<span class="text-4xl sm:text-5xl font-bold bg-gradient-to-br from-blue-200 via-white to-blue-400 bg-clip-text text-transparent">
+              N
+            </span>
+<!-- Camera Disabled Small Badge Overlay -->
+<div class="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-rose-500/90 border-2 border-slate-900 flex items-center justify-center text-white shadow-md" title="Camera is currently turned off">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Camera Off Text Label -->
+<h2 class="text-base sm:text-lg font-semibold text-slate-200 tracking-tight">Camera is off</h2>
+<p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm">nikhil (You) · Speaking is enabled</p>
+<!-- Waiting Room Notice as requested in original image -->
+<div class="mt-6 flex items-center space-x-2 text-xs text-blue-300/80 bg-blue-950/50 border border-blue-800/40 px-3.5 py-1.5 rounded-full backdrop-blur-sm">
+<svg class="w-3.5 h-3.5 animate-spin text-blue-400" fill="none" viewbox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+<span>Waiting for others to join this meeting...</span>
+</div>
+</div>
+<!-- Stage Bottom-Left Overlay Badge: Participant Name + Mic State -->
+<div class="absolute bottom-5 left-5 z-20" data-purpose="user-stage-badge">
+<div class="flex items-center space-x-2.5 px-3.5 py-2 rounded-xl bg-slate-900/85 backdrop-blur-md border border-blue-500/25 shadow-lg text-slate-100">
+<!-- Crown Icon for Host -->
+<svg class="w-4 h-4 text-amber-400" fill="currentColor" title="Host" viewbox="0 0 24 24">
+<path d="M2.25 12l2.25-5.25L9 10.5 12 4.5l3 6 4.5-3.75L21.75 12v6a2.25 2.25 0 01-2.25 2.25H4.5A2.25 2.25 0 012.25 18v-6z"></path>
+</svg>
+<!-- Username -->
+<span class="text-sm font-medium tracking-tight">nikhil <span class="text-slate-400 text-xs font-normal">(You)</span></span>
+<!-- Audio Activity Indicator Pill -->
+<div class="flex items-center space-x-1 pl-1 border-l border-slate-700/80">
+<!-- Muted Mic Indicator -->
+<div class="p-1 rounded-full bg-rose-500/20 text-rose-400" title="Microphone muted">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M19 19L5 5m14 5a7 7 0 01-11.414 5.414M12 19v3m-4 0h8m-3-14V5a3 3 0 00-6 0v7a3 3 0 00.354 1.414" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Video Muted Small Icon -->
+<div class="p-1 rounded-full bg-slate-800 text-slate-400" title="Video stopped">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- Stage Top-Right Quick Badge: Layout & Grid controls -->
+<div class="absolute top-5 right-5 z-20 hidden sm:flex items-center space-x-2">
+<button class="p-2 rounded-xl bg-slate-900/70 hover:bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700/50 backdrop-blur-md transition shadow-md" title="Toggle Fullscreen">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+</main>
+<!-- END: MainMeetingStage -->
+<!-- BEGIN: BottomDockControls -->
+<footer class="w-full pb-5 px-4 z-40" data-purpose="meeting-control-bar">
+<nav class="max-w-5xl mx-auto glass-dock bg-slate-900/85 border border-blue-500/25 rounded-2xl px-4 sm:px-6 py-3.5 shadow-2xl flex items-center justify-between gap-3 transition-all duration-200">
+<!-- ================= ZONE 1: LEFT (AUDIO & VIDEO CONTROLS) ================= -->
+<!-- Microphone and Camera toggles with dedicated popover chevrons -->
+<div class="flex items-center space-x-2" data-purpose="zone-left-av-controls">
+<!-- Microphone Button Group -->
+<div class="flex items-center rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 shadow-sm overflow-hidden group">
+<button class="flex flex-col items-center justify-center px-3.5 py-2 text-rose-400 group-hover:text-rose-300 transition" title="Turn on microphone" type="button">
+<svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M19 19L5 5m14 5a7 7 0 01-11.414 5.414M12 19v3m-4 0h8m-3-14V5a3 3 0 00-6 0v7a3 3 0 00.354 1.414" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium text-slate-300">Unmute</span>
+</button>
+<!-- Mic Settings Chevron -->
+<button class="h-full px-1.5 border-l border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700/50 transition" title="Select audio input &amp; output" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+<!-- Camera Button Group -->
+<div class="flex items-center rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 shadow-sm overflow-hidden group">
+<button class="flex flex-col items-center justify-center px-3.5 py-2 text-rose-400 group-hover:text-rose-300 transition" title="Start video" type="button">
+<svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium text-slate-300">Start Video</span>
+</button>
+<!-- Camera Settings Chevron -->
+<button class="h-full px-1.5 border-l border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700/50 transition" title="Select camera &amp; virtual background" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- ================= ZONE 2: CENTER (COLLABORATION & MEETING TOOLS) ================= -->
+<div class="flex items-center space-x-1 sm:space-x-1.5 lg:space-x-2" data-purpose="zone-center-collaboration">
+<!-- Share Screen -->
+<button class="flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="Share Screen" type="button">
+<div class="p-1 rounded-lg group-hover:text-blue-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M12 7l-2 2m2-2l2 2m-2-2v6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200 hidden sm:block">Share screen</span>
+</button>
+<!-- Raise Hand -->
+<button class="flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="Raise Hand" type="button">
+<div class="p-1 rounded-lg group-hover:text-amber-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200 hidden sm:block">Raise hand</span>
+</button>
+<!-- Reactions / Emojis -->
+<button class="flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="Reactions" type="button">
+<div class="p-1 rounded-lg group-hover:text-yellow-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200 hidden sm:block">Reactions</span>
+</button>
+<!-- Participants (with Counter Badge) -->
+<button class="relative flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="View participants list" type="button">
+<div class="p-1 rounded-lg group-hover:text-blue-400 transition relative">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -top-1 -right-2 px-1.5 py-0.2 bg-blue-600 text-white text-[10px] font-bold rounded-full border border-slate-900 shadow-sm">1</span>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200 hidden sm:block">Participants</span>
+</button>
+<!-- In-Meeting Chat -->
+<button class="relative flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="In-meeting Chat" type="button">
+<div class="p-1 rounded-lg group-hover:text-blue-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200 hidden sm:block">Chat</span>
+</button>
+<!-- Meeting Info -->
+<button class="hidden md:flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="Meeting Details &amp; Invite Link" type="button">
+<div class="p-1 rounded-lg group-hover:text-blue-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200">Meeting info</span>
+</button>
+<!-- Settings Gear -->
+<button class="hidden md:flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="Settings" type="button">
+<div class="p-1 rounded-lg group-hover:text-blue-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200">Settings</span>
+</button>
+<!-- More Options -->
+<button class="flex flex-col items-center justify-center px-2.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition group" title="More options" type="button">
+<div class="p-1 rounded-lg group-hover:text-blue-400 transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-200 hidden sm:block">More</span>
+</button>
+</div>
+<!-- ================= ZONE 3: RIGHT (LEAVE / END CALL OPTION) ================= -->
+<div class="flex items-center" data-purpose="zone-right-leave-call">
+<div class="inline-flex rounded-xl shadow-lg shadow-rose-900/20">
+<!-- Main Leave / End Button -->
+<button class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-l-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-medium text-xs sm:text-sm tracking-wide transition shadow active:scale-95" title="Leave or End Meeting" type="button">
+<svg class="w-4 h-4 transform rotate-[135deg]" fill="currentColor" viewbox="0 0 20 20">
+<path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+</svg>
+<span class="font-semibold whitespace-nowrap">Leave Meeting</span>
+</button>
+<!-- Dropdown Trigger for Host Options (Leave vs End for Everyone) -->
+<button class="px-2 py-2.5 rounded-r-xl bg-rose-700 hover:bg-rose-600 border-l border-rose-800 text-rose-100 hover:text-white transition" title="Host Options: End meeting for all or leave" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+</div>
+</nav>
+</footer>
+<!-- END: BottomDockControls -->
+</body></html>

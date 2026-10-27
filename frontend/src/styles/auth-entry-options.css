@@ -1,0 +1,54 @@
+/* Reference field/provider arrangement, using Talk's existing theme tokens.
+   Scoped to the two email forms; OTP and other authentication pages keep theirs. */
+.signin-card:has(.auth-entry-layout) { width: min(100%, 560px); }
+.auth-entry-layout { display: grid; min-width: 0; margin-top: 28px; }
+.auth-entry-layout.has-provider { grid-template-columns: minmax(0, 1fr) 20px 80px; column-gap: 20px; }
+.auth-entry-fields { grid-column: 1; grid-row: 1; min-width: 0; }
+.auth-entry-fields .field-label {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.signin-card .auth-entry-fields .form-input {
+  min-height: 50px; padding: 14px 0; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--color-secondary) 50%, var(--color-surface));
+  border-radius: 0; background: transparent; box-shadow: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.signin-card .auth-entry-fields .form-input:focus {
+  outline: none; border-bottom-color: var(--color-deep-blue); box-shadow: 0 1px 0 var(--color-deep-blue);
+}
+.signin-card .auth-entry-fields .form-input[aria-invalid="true"] { border-bottom-color: var(--color-error); }
+.auth-entry-fields .signin-password-label { justify-content: flex-end; }
+.auth-entry-fields .signin-password-toggle { right: 0; }
+.auth-entry-or { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; align-items: center; gap: 18px; color: var(--color-secondary); font-size: 11px; font-weight: 500; }
+.auth-entry-or::before, .auth-entry-or::after { content: ''; width: 1px; flex: 1; min-height: 40px; background: var(--color-outline-variant); }
+.auth-entry-providers { grid-column: 3; grid-row: 1; align-self: center; min-width: 0; text-align: center; }
+.auth-entry-providers .google-signin { display: flex; flex-direction: column; align-items: center; }
+.auth-entry-providers .google-signin-status { font-size: 11px; overflow-wrap: anywhere; }
+.auth-entry-providers .google-signin[data-status="ready"] .google-signin-status {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.auth-entry-providers .google-account-chooser-link { margin-top: 12px; font-size: 11px; }
+.auth-entry-providers .google-signin-retry { text-align: center; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .auth-entry-layout.has-provider { grid-template-columns: minmax(0, 1fr) 16px 64px; column-gap: 12px; }
+}
+@media (max-width: 767px) {
+  .auth-entry-layout.has-provider { grid-template-columns: minmax(0, 1fr); row-gap: 24px; }
+  .auth-entry-layout.has-provider > .auth-entry-fields { grid-column: 1; grid-row: 3; }
+  .auth-entry-or { grid-column: 1; grid-row: 2; flex-direction: row; gap: 14px; }
+  .auth-entry-or::before, .auth-entry-or::after { width: auto; height: 1px; min-height: 0; }
+  .auth-entry-providers { grid-column: 1; grid-row: 1; justify-self: center; width: 100%; max-width: 280px; }
+}
+@media (prefers-reduced-motion: reduce) { .signin-card .auth-entry-fields .form-input { transition: none; } }
+
+/* Provider failures need room for their message and retry action. Keep the
+   compact icon arrangement when Google is ready; stack recovery below fields. */
+.auth-transition .auth-entry-layout.has-provider:has(.google-signin:is([data-status="error"], [data-status="unconfigured"])) {
+  grid-template-columns: minmax(0, 1fr); row-gap: 12px;
+}
+.auth-transition .auth-entry-layout:has(.google-signin:is([data-status="error"], [data-status="unconfigured"])) > .auth-entry-fields { grid-column: 1; grid-row: 1; }
+.auth-transition .auth-entry-layout:has(.google-signin:is([data-status="error"], [data-status="unconfigured"])) > .auth-entry-or { display: none; }
+.auth-transition .auth-entry-layout:has(.google-signin:is([data-status="error"], [data-status="unconfigured"])) > .auth-entry-providers {
+  grid-column: 1; grid-row: 2; width: 100%; max-width: none;
+}

@@ -8,6 +8,20 @@ const env = {
 };
 const request = { to: 'member@example.com', code: '001234', expiresAt: new Date('2026-10-14T13:50:00Z') };
 
+test('password reset emails use separate purpose and retain code privacy and five-minute expiry', async () => {
+  const {mailer,state}=fixture();
+  await mailer.sendVerification({...request,purpose:'password-reset'});
+  const message=state.messages[0];
+  assert.equal(message.subject,'Your Talk password reset code');
+  assert.ok(!message.subject.includes(request.code));
+  for(const content of [message.text,message.html]) {
+    assert.match(content,/reset your Talk password/i);
+    assert.match(content,/password reset screen/);
+    assert.match(content,/5 minutes/);
+    assert.match(content,/only once/);
+  }
+});
+
 function fixture(options = {}) {
   const state = { created: 0, verified: 0, messages: [] };
   const mailer = createVerificationMailer(options.env || env, {

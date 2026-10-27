@@ -5,6 +5,12 @@ import { createVerificationMailer } from './mailer.mjs';
 import { createFirebaseTokenVerifier } from './firebase-auth.mjs';
 import { openPostgresDatabase } from './postgres-database.mjs';
 import { productionConfig } from './production-config.mjs';
+import { createMeetingService } from './meetings.mjs';
+import { createRecordingRuntime } from './recording-runtime.mjs';
+import {whiteboardProviderFromEnvironment} from './whiteboard-ai-provider.mjs';
+import {cloudWhiteboardProviderFromEnvironment} from './whiteboard-cloud-provider.mjs';
+import {schedulingTransport} from './scheduling/transport.mjs';
+import {calendarConfiguration} from './scheduling/google-calendar/config.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -15,6 +21,7 @@ export function createRuntimeAuth(env, { origins, secureCookies = false }) {
   const firebaseProjectId = env.FIREBASE_PROJECT_ID || env.VITE_FIREBASE_PROJECT_ID;
   const firebase = createFirebaseTokenVerifier(firebaseProjectId);
   const databasePath = path.resolve(root, env.AUTH_DATABASE_PATH || 'data/talk.sqlite');
+  const meetings = createMeetingService(env);
   return createAuthApp({
     clientId: env.GOOGLE_CLIENT_ID,
     origins,
@@ -25,6 +32,8 @@ export function createRuntimeAuth(env, { origins, secureCookies = false }) {
     firebaseProjectId,
     phoneConfigured: firebase.configured,
     verifyFirebaseToken: firebase.verifyIdToken,
+    meetings, recordings: createRecordingRuntime({ env, service: meetings }), assistant: { autoStart: true }, scheduling: {transport:schedulingTransport(env),calendar:{config:calendarConfiguration(env,{origins})}},
+    whiteboardIntelligence: {provider:whiteboardProviderFromEnvironment(env),cloudProvider:cloudWhiteboardProviderFromEnvironment(env)},
   });
 }
 
@@ -34,6 +43,7 @@ export async function createProductionAuth(env) {
   const firebase = createFirebaseTokenVerifier(env.FIREBASE_PROJECT_ID);
   if (!mailer.configured || !firebase.configured) throw new Error('Production authentication providers are not configured.');
   const database = await openPostgresDatabase(env);
+  const meetings = createMeetingService(env);
   try {
     const app = createAuthApp({
       clientId: env.GOOGLE_CLIENT_ID, origins: [settings.origin], secureCookies: true,
@@ -41,8 +51,11 @@ export async function createProductionAuth(env) {
       previousCookieSecret: env.AUTH_COOKIE_SECRET_PREVIOUS, trustedProxyCidrs: env.TRUSTED_PROXY_CIDRS,
       emailConfigured: true, sendVerification: mailer.sendVerification,
       firebaseProjectId: env.FIREBASE_PROJECT_ID, phoneConfigured: true, verifyFirebaseToken: firebase.verifyIdToken,
+      meetings, recordings: createRecordingRuntime({ env, service: meetings }), assistant: { autoStart: true }, scheduling: {transport:schedulingTransport(env),calendar:{config:calendarConfiguration(env,{origins:[settings.origin]})}},
+      whiteboardIntelligence: {provider:whiteboardProviderFromEnvironment(env),cloudProvider:cloudWhiteboardProviderFromEnvironment(env)},
     });
-    app.locals.closeAuthDatabase = () => database.close();
+    const closeMeetingConnections = app.locals.closeAuthDatabase;
+    app.locals.closeAuthDatabase = async () => { await closeMeetingConnections(); return database.close(); };
     app.locals.checkAuthDatabase = () => database.withContext(() => database.prepare('SELECT 1 AS ready').get());
     return app;
   } catch (error) { await database.close(); throw error; }

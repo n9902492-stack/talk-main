@@ -1,0 +1,52 @@
+/* Shared button elevation, including controls in lazily loaded meeting panels.
+   Keep this shadow-only override centralized; each component owns its colors,
+   shape, focus outline, motion and layout. */
+:root {
+  --talk-button-shadow: 0 3px 8px rgb(8 119 201 / 22%), 0 7px 18px rgb(0 91 255 / 12%);
+  --talk-button-shadow-hover: 0 4px 11px rgb(8 119 201 / 30%), 0 9px 22px rgb(0 91 255 / 18%);
+  --talk-button-shadow-pressed: 0 1px 5px rgb(8 119 201 / 24%);
+  --talk-button-shadow-disabled: 0 2px 6px rgb(8 119 201 / 10%);
+}
+
+:where(
+  button:not(.dashboard-scrim), [role="button"], input[type="button"], input[type="submit"], input[type="reset"],
+  a[class*="button"], a.meetings-hub-card-primary, a.meetings-hub-join,
+  a.meetings-hub-details, a.meetings-hub-resource, a.dashboard-row-action,
+  a.dashboard-download, a.dashboard-account-link, .hero-actions > a, .talk-recording-actions > a,
+  .google-signin[data-status="ready"] .google-signin-host,
+  .google-signin[data-status="verifying"] .google-signin-host
+) {
+  --talk-control-shadow: var(--talk-button-shadow);
+  --talk-control-selection: inset 0 0 0 0 transparent;
+  --talk-control-focus: 0 0 0 0 transparent;
+  /* Important only here so component-specific or late-loaded shadow rules
+     cannot restore grey shadows. Existing focus outlines remain intact. */
+  box-shadow: var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--talk-control-selection), var(--talk-control-focus), var(--talk-control-shadow) !important;
+}
+
+:is(button:not(.dashboard-scrim), [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a[class*="button"], a.meetings-hub-card-primary, a.meetings-hub-join, a.meetings-hub-details, a.meetings-hub-resource, a.dashboard-row-action, a.dashboard-download, a.dashboard-account-link, .hero-actions > a, .talk-recording-actions > a):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], .selected, .is-selected, .active, .is-active) {
+  --talk-control-selection: inset 0 0 0 1px rgb(8 119 201 / 48%);
+}
+
+@media (hover: hover) {
+  :is(button:not(.dashboard-scrim), [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a[class*="button"], a.meetings-hub-card-primary, a.meetings-hub-join, a.meetings-hub-details, a.meetings-hub-resource, a.dashboard-row-action, a.dashboard-download, a.dashboard-account-link, .hero-actions > a, .talk-recording-actions > a, .google-signin[data-status="ready"] .google-signin-host):not(:disabled):not([aria-disabled="true"]):hover {
+    --talk-control-shadow: var(--talk-button-shadow-hover);
+  }
+}
+
+:is(button:not(.dashboard-scrim), [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a[class*="button"], a.meetings-hub-card-primary, a.meetings-hub-join, a.meetings-hub-details, a.meetings-hub-resource, a.dashboard-row-action, a.dashboard-download, a.dashboard-account-link, .hero-actions > a, .talk-recording-actions > a):focus-visible {
+  --talk-control-focus: 0 0 0 3px rgb(0 91 255 / 18%);
+}
+
+:is(button:not(.dashboard-scrim), [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a[class*="button"], a.meetings-hub-card-primary, a.meetings-hub-join, a.meetings-hub-details, a.meetings-hub-resource, a.dashboard-row-action, a.dashboard-download, a.dashboard-account-link, .hero-actions > a, .talk-recording-actions > a):not(:disabled):not([aria-disabled="true"]):active {
+  --talk-control-shadow: var(--talk-button-shadow-pressed);
+}
+
+:is(button:not(.dashboard-scrim), [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a[class*="button"], a.meetings-hub-card-primary, a.meetings-hub-join, a.meetings-hub-details, a.meetings-hub-resource, a.dashboard-row-action, a.dashboard-download, a.dashboard-account-link, .hero-actions > a, .talk-recording-actions > a):is(:disabled, [aria-disabled="true"]) {
+  --talk-control-shadow: var(--talk-button-shadow-disabled);
+}
+
+/* Google owns its button's iframe. Add elevation to Talk's existing host only. */
+.google-signin[data-status="ready"] .google-signin-host,
+.google-signin[data-status="verifying"] .google-signin-host { border-radius: 999px; }
+.google-signin[data-status="verifying"] .google-signin-host { --talk-control-shadow: var(--talk-button-shadow-disabled); }

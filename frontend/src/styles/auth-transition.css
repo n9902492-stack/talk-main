@@ -1,0 +1,31 @@
+/* Motion only: all typography, controls, colors and globe sizing come from
+   the existing authentication styles. The two unequal columns retain widths. */
+.auth-transition { overflow-x: clip; --auth-motion: 840ms cubic-bezier(.4, 0, .2, 1); }
+.auth-transition > .signin-visual { z-index: 2; transform: translate3d(0, 0, 0); will-change: transform; }
+.auth-transition-forms { position: relative; min-width: 0; height: var(--auth-form-height, auto); min-height: 100%; transform: translate3d(0, 0, 0); will-change: transform, opacity; }
+.auth-transition-view { position: absolute; inset: 0; }
+.auth-transition-view > .signin-form-side { min-height: 100%; }
+.auth-transition-forms[data-changing="true"] { opacity: 0; pointer-events: none; }
+.auth-transition[data-auth-view="signup"] > .signin-visual { transform: translate3d(var(--auth-brand-shift, 0px), 0, 0); }
+.auth-transition[data-auth-view="signup"] > .auth-transition-forms { transform: translate3d(calc(-1 * var(--auth-form-shift, 0px)), 0, 0); }
+.auth-transition-ready > .signin-visual,
+.auth-transition-ready > .auth-transition-forms { transition: transform var(--auth-motion); }
+.auth-transition-ready > .auth-transition-forms { transition: transform var(--auth-motion), height 600ms ease, opacity 320ms ease 120ms; }
+.auth-transition-ready > .auth-transition-forms[data-changing="true"] { transition: transform var(--auth-motion), height 600ms ease, opacity 180ms ease; }
+.signin-visual-return { display: flex; justify-content: center; margin-top: 20px; }
+.signin-visual-return > a { gap: 8px; }
+@media (max-width: 767px) {
+  .auth-transition > .auth-transition-forms { order: -1; }
+  .auth-transition[data-auth-view="signup"] > .signin-visual,
+  .auth-transition[data-auth-view="signup"] > .auth-transition-forms { transform: none; }
+  .auth-transition-forms { min-height: 0; }
+  .auth-transition > .signin-visual,
+  .auth-transition > .auth-transition-forms { will-change: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-transition-ready > .signin-visual,
+  .auth-transition-ready > .auth-transition-forms,
+  .auth-transition-ready > .auth-transition-forms[data-changing="true"] { transition: none; }
+  .auth-transition > .signin-visual,
+  .auth-transition > .auth-transition-forms { will-change: auto; }
+}

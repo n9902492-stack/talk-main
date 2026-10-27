@@ -93,6 +93,15 @@ export const resendEmailCode = (signal: AbortSignal) => post('/api/auth/email/re
 export const changeVerificationEmail = (signal: AbortSignal) => post('/api/auth/email/change', {}, signal, 'verification');
 export const startPasswordLink = (password: string, signal: AbortSignal) => post('/api/auth/email/link/start', { password }, signal, 'session');
 
+export type PasswordResetState={reset:{email:string;verified:boolean;expiresAt:number;resendAt:number;attemptsRemaining:number}|null;csrfToken:string|null;serverTime:number;completed?:boolean};
+const resetBase='/api/auth/email/password-reset';
+export const readPasswordReset=(signal:AbortSignal)=>request(resetBase,signal) as Promise<PasswordResetState>;
+export async function passwordResetAction(action:'request'|'resend'|'verify'|'complete',body:Record<string,unknown>,signal:AbortSignal):Promise<PasswordResetState>{
+  const context=await request(action==='request'?'/api/auth/config':resetBase,signal);
+  if(typeof context.csrfToken!=='string'||!context.csrfToken)throw new EmailAuthError('reset_expired','Request a new password reset code to continue.');
+  return request(`${resetBase}/${action}`,signal,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':context.csrfToken},body:JSON.stringify(body)}) as Promise<PasswordResetState>;
+}
+
 export function navigateToEmailVerification() {
   window.history.pushState({}, '', '/verify-email');
   window.dispatchEvent(new PopStateEvent('popstate'));

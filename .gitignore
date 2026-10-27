@@ -10,3 +10,6 @@ artifacts/qa/
 .env*
 !.env.example
 data/
+
+# Recoverable local source checkpoints
+artifacts/backups/

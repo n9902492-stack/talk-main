@@ -1,0 +1,17 @@
+/* Camera-off tiles keep their participant colour in both call themes. */
+body.talk-application .meeting-studio.call-reference .live-participant-placeholder[data-avatar-theme] {
+  background: radial-gradient(ellipse at 50% 42%, hsl(var(--participant-hue) 32% 29%), hsl(var(--participant-hue) 30% 19%) 85%);
+  color: #fff;
+}
+body.talk-application .meeting-studio.call-reference .live-participant-placeholder[data-avatar-theme] > .talk-avatar {
+  background: hsl(var(--participant-hue) 52% 29%);
+  color: #fff;
+  border-color: hsl(var(--participant-hue) 46% 65%);
+  outline-color: hsl(var(--participant-hue) 30% 24%);
+  box-shadow: 0 8px 28px #0003;
+}
+body.talk-application .meeting-studio.call-reference .live-participant-placeholder[data-avatar-theme] > p {
+  color: #fff;
+  background: #10182080;
+  border-color: #ffffff26;
+}

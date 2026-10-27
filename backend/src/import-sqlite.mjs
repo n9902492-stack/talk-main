@@ -4,7 +4,13 @@ import { postgresConfig } from './postgres-database.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const tables = ['accounts', 'identities', 'sessions', 'google_challenges', 'email_challenges', 'phone_profiles', 'phone_challenges', 'phone_token_uses', 'rate_limits'];
+const tables = ['accounts', 'identities', 'sessions', 'google_challenges', 'email_challenges', 'phone_profiles', 'phone_challenges', 'phone_token_uses', 'rate_limits', 'talk_meetings', 'talk_meeting_members', 'talk_meeting_connections', 'talk_meeting_events', 'account_avatars', 'account_backgrounds'];
+tables.push('password_reset_challenges');
+tables.push('talk_recordings','talk_recording_consents','talk_recording_events','talk_recording_jobs','talk_transcript_segments');
+tables.push('talk_transcript_revisions','talk_ai_consents','talk_ai_reports','talk_ai_report_sources','talk_ai_report_revisions','talk_ai_jobs','talk_ai_events');
+tables.push('talk_whiteboards','talk_whiteboard_permissions','talk_whiteboard_operations','talk_whiteboard_snapshots','talk_whiteboard_images','talk_whiteboard_events','talk_whiteboard_versions');
+tables.push('talk_whiteboard_ai_jobs');
+tables.push('talk_whiteboard_ai_approvals','talk_whiteboard_ai_usage');
 
 /** Import only into an empty, migrated target. Never export or print row values. */
 export async function importSqlite(source, pool) {
@@ -20,6 +26,7 @@ export async function importSqlite(source, pool) {
       if ((await client.query(`SELECT 1 FROM ${table} LIMIT 1`)).rowCount) throw new Error('Import requires an empty target.');
     }
     for (const table of tables) {
+      if ((table.startsWith('talk_') || table === 'account_avatars' || table === 'account_backgrounds' || table === 'password_reset_challenges') && !source.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table)) { counts[table] = 0; continue; }
       const allowed = new Set((await client.query('SELECT column_name FROM information_schema.columns WHERE table_schema=current_schema() AND table_name=$1', [table])).rows.map(row => row.column_name));
       const rows = source.prepare(`SELECT * FROM ${table}`).all();
       for (const row of rows) {

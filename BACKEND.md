@@ -4,6 +4,14 @@ The backend verifies identities, sends email verification codes and manages Talk
 
 For pages, components and browser authentication helpers, see [FRONTEND.md](FRONTEND.md).
 
+Email password recovery reuses the existing SMTP transport and account identities. Its browser-bound codes, durable delivery jobs, migrations and API routes are described in [Password recovery](deployment/PASSWORD_RESET.md).
+
+The optional whiteboard proposal worker is separate from Phase 9. Its bounded templates, source-based analysis, approved local-provider adapter, jobs, migrations and authorization are documented in [Phase 10H](deployment/PHASE10H_INTELLIGENT_WHITEBOARD.md). Model inference stays disabled by default.
+
+The private AI meeting-assistant foundation is documented in [Phase 9B](deployment/PHASE9B_AI_FOUNDATION.md). It adds immutable transcript evidence, explicit AI consent, report revisions and durable jobs. Local model inference is disabled, and the temporary tunnel adapter excludes the assistant entirely.
+
+The optional temporary team-test adapter is `backend/src/tunnel-test.mjs`, started through `scripts/tunnel-test.mjs`. It reuses the authentication, meeting management and signaling gateway below, with a fixed isolated SQLite database and no recording/transcription runtime. It serves only the built frontend on `127.0.0.1:3002`; normal development and production entry points are unchanged. See [Temporary free team test](deployment/TEMPORARY_FREE_TEST.md) for setup and the public-access approval boundary.
+
 ## How the parts connect
 
 ```mermaid
@@ -39,6 +47,7 @@ backend/
 | [backend/src/index.mjs](backend/src/index.mjs) | Standalone server, environment loading, health check, static frontend serving and shutdown |
 | [backend/src/runtime-auth.mjs](backend/src/runtime-auth.mjs) | Wires configuration, database and authentication providers for development or production |
 | [backend/src/auth.mjs](backend/src/auth.mjs) | Authentication endpoints, validation, hashing, verification challenges, sessions, CSRF, account linking and limits |
+| [backend/src/meetings.mjs](backend/src/meetings.mjs) | LiveKit/gateway configuration and backend-only room/source-restricted JWT signing |
 | [backend/src/database.mjs](backend/src/database.mjs) | Local SQLite connection and versioned migrations |
 | [backend/src/async-database.mjs](backend/src/async-database.mjs) | Awaitable database interface, transaction contexts and concurrency locks |
 | [backend/src/postgres-database.mjs](backend/src/postgres-database.mjs) | Production PostgreSQL pool, connection policy, SQL parameters and migration support |
@@ -86,8 +95,15 @@ All authentication paths below start with `/api/auth`. Read the handlers in `bac
 | POST | `/phone/start` | Create a rate-limited Talk challenge before the browser requests an SMS |
 | POST | `/phone/verify`, `/phone/cancel` | Exchange the Firebase ID token for a session, or cancel the flow |
 | POST | `/logout` | Revoke the Talk session and clear its cookie |
+| GET | `/meetings/:meetingId` | Confirm a verified Talk session and room authorization; return meeting readiness and session CSRF |
+| POST | `/meetings/:meetingId/token` | Validate account/admission/lock/end state; return a hashed-in-storage, revocable Talk signaling ticket after approval |
+| POST | `/meetings` | Create a meeting with durable authenticated-account ownership |
+| GET | `/meetings/:meetingId/state` | Role/admission-aware state; waiting accounts cannot fetch the participant list or reactions |
+| POST | `/meetings/:meetingId/actions` | Authorize and audit admissions, co-host changes, publishing restrictions, locks, hands/reactions, removal, leave and end |
 
 The standalone server also exposes `GET /healthz` for readiness. Production checks the database before returning success. Vite development mounts the authentication API directly and does not use that standalone health endpoint.
+
+Meeting admission reuses existing account/session and rate-limit tables. A separately running LiveKit server carries WebRTC audio/video; the Talk HTTP backend signs access tokens but does not transport media. See [deployment/MEETINGS.md](deployment/MEETINGS.md) for the shared room's explicit access policy, local server and production environment requirements.
 
 ## Authentication flows
 
@@ -152,4 +168,16 @@ node scripts/test-backend-image.mjs --auth-tests
 
 These checks use simulated provider proofs and captured email delivery. They do not prove real inbox or SMS delivery. Real-Firebase fictional-number tests are separate from real SMS tests; follow the workflows in [README.md](README.md#safe-local-test-numbers).
 
-For cloud infrastructure, backups, account-data import, Google HTTPS origins, secret handling and deployment approvals, follow [deployment/FIREBASE_HOSTING.md](deployment/FIREBASE_HOSTING.md). Preparation/test commands do not deploy the application. The current backend implements authentication; meeting participants, bookings, chat and Q&A are local/sample previews rather than a conferencing service.
+For cloud infrastructure, backups, account-data import, Google HTTPS origins, secret handling and deployment approvals, follow [deployment/FIREBASE_HOSTING.md](deployment/FIREBASE_HOSTING.md). Preparation/test commands do not deploy the application. Live meetings use backend-authorized LiveKit audio/video, screen sharing and session-only data-channel chat; see [deployment/MEETINGS.md](deployment/MEETINGS.md). The separate sample meeting preview, bookings and Q&A remain previews. Chat has no database history; meeting management uses durable account roles and moderation records.
+
+Phase 3 now implements moderation in `meeting-management.mjs`, with SQLite migration 004 and PostgreSQL migration 002 for meetings, members, connection-ticket hashes and audit events. `meeting-gateway.mjs` holds actual LiveKit JWTs on the backend and checks revocable Talk tickets on WebSocket connections/reconnections. Backend RoomService APIs enforce publishing restrictions/removal/end; clients never get SFU administration privileges. Production requires an approved WSS gateway endpoint configured as `MEETING_SIGNAL_URL`, separate from Firebase Hosting's HTTP rewrites. See [deployment/PHASE3_MEETINGS.md](deployment/PHASE3_MEETINGS.md). Existing authentication is the sole account/session authority.
+
+Avatar profile APIs and image normalization live in `backend/src/avatars.mjs` and the existing auth router. SQLite migration 005 / PostgreSQL migration 003 add `account_avatars`, including bounded normalized images; the current database remains the storage authority. Two non-secret catalog modules in `frontend/src/lib/` are shared with backend validation and explicitly copied into the backend image. Sharp is a backend-only dependency. Reactions reuse moderation authorization, rate limits and LiveKit notifications. See [reactions and avatars](deployment/REACTIONS_AVATARS.md) for privacy, migrations, original-asset licensing and tests.
+
+Custom camera backgrounds reuse session/CSRF/Origin checks and the existing Sharp validator. SQLite migration 006 / PostgreSQL migration 004 add `account_backgrounds` for one bounded private image per account. GET metadata/image and POST image routes live under `/api/auth/profile/background`; backgrounds are not exposed to peers as original files. Existing database import tooling includes the new table. Segmentation stays in the browser, without another backend video/AI service. See [video backgrounds](deployment/VIDEO_BACKGROUNDS.md).
+
+## Recording and transcription
+
+`meeting-recordings.mjs` owns authorization, consent, capture leases, durable jobs, retention and private routes. `recording-recorder.mjs` / `recorder-client.mjs` capture authorized LiveKit tracks in a server-owned browser; `recording-storage.mjs` provides private local/GCS storage; `recording-transcriber.mjs` runs local Whisper; `recording-exports.mjs` exports TXT/PDF. SQLite 007 and PostgreSQL 005 extend the existing database. See [setup and production limits](deployment/RECORDING_TRANSCRIPTION.md).
+
+Phase 10 adds meeting-authorized whiteboard operations, private images, snapshots and exports in `backend/src/whiteboards.mjs`, with additive SQLite 009 / PostgreSQL 007 migrations. See [whiteboard APIs, permissions and persistence](deployment/PHASE10_WHITEBOARD.md).

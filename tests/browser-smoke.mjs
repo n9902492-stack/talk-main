@@ -84,14 +84,8 @@ try {
   await page.screenshot({ path: 'artifacts/qa/meeting-desktop.png', fullPage: true });
   check('Meeting agenda, chat, Q&A voting, whiteboard drawing/undo, and reactions');
   await page.goto(base + '/bookings', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
-  await page.getByLabel('Full name', { exact: true }).fill('Local Booking');
-  await page.getByLabel('Email', { exact: true }).fill('booking@example.com');
-  await page.getByRole('button', { name: 'Schedule session' }).click();
-  await page.locator('.booking-success').waitFor();
-  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Add to calendar' }).click();
-  assert.equal((await download).suggestedFilename(), 'talk-session.ics');
-  check('Booking validation, local confirmation, and calendar download');
+  await page.waitForURL('**/sign-in');
+  check('Scheduling host page requires authentication; full booking flow is covered by scheduling-browser.mjs');
   const response = await page.request.get(base + '/reference/session-recording.mp4', { headers: { Range: 'bytes=1000000-1001023' } });
   assert.equal(response.status(), 206); assert.equal((await response.body()).length, 1024);
   check('Original MP4 supports byte ranges for seeking');

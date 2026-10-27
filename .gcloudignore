@@ -4,6 +4,11 @@
 !package-lock.json
 !frontend/
 !frontend/package.json
+!frontend/src/
+!frontend/src/lib/
+!frontend/src/lib/reactionCatalog.js
+!frontend/src/lib/avatarCatalog.js
+!frontend/src/lib/whiteboardModel.js
 !backend/
 !backend/Dockerfile
 !backend/package.json

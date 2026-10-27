@@ -1,0 +1,226 @@
+/* Original Talk UI built from the visual reference, without embedding its image,
+   people, chat text, recording indicator or Gemini watermark. */
+.meeting-studio {
+  --call-surface: #202024;
+  --call-panel: #252529;
+  --call-gold: #d2b16a;
+  --call-muted: #b9b8c0;
+  --color-on-surface: #f3f2f5;
+  --color-secondary: #b9b8c0;
+  --color-outline-variant: #414147;
+  --color-accent-soft: #333338;
+  --color-surface: #29292e;
+  --color-surface-container-lowest: #252529;
+  --color-deep-blue: #d2b16a;
+  --color-button: #d2b16a;
+  --color-on-button: #202024;
+  --studio-navy: #202024;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  width: 100%; height: 100svh; min-height: 620px;
+  padding: clamp(12px, 3.4vw, 44px) clamp(12px, 4.3vw, 64px) 16px;
+  background: #47484d;
+  color: #f3f2f5;
+  overflow: hidden;
+  gap: 0;
+}
+.meeting-studio :is(button, a[class*="button"], .live-person-pin) {
+  --talk-control-shadow: 0 0 transparent !important;
+  --talk-control-selection: inset 0 0 0 0 transparent !important;
+}
+.meeting-studio button:focus-visible, .meeting-studio a:focus-visible,
+.meeting-studio textarea:focus-visible, .meeting-studio select:focus-visible {
+  outline: 2px solid var(--call-gold); outline-offset: 3px;
+}
+.meeting-studio .room-header {
+  position: relative; min-height: 76px; padding: 15px 24px; gap: 18px;
+  background: var(--call-surface); border: 0; border-radius: 20px 20px 0 0;
+  box-shadow: none; color: #f3f2f5;
+}
+.meeting-studio .room-brand { order: 0; color: #fff; border-right: 1px solid #414147; padding-right: 18px; gap: 8px; font-size: 25px; }
+.meeting-studio .room-brand .studio-brand-mark { background: transparent; color: var(--call-gold); border: 0; border-radius: 0; width: 28px; height: 30px; box-shadow: none; }
+.meeting-studio .room-title { order: 1; display: block; flex: 1; max-width: 34vw; min-width: 0; }
+.meeting-studio .room-title strong { color: #f3f2f5; font-size: 18px; font-weight: 550; }
+.meeting-studio .live-meeting-summary { order: 2; margin-left: auto; color: #c9c8cf; gap: 14px; }
+.meeting-studio .live-meeting-summary time { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 0; border-radius: 30px; background: #303034; color: #d5d4dc; font-size: 14px; white-space: nowrap; }
+.meeting-studio .studio-security { display: none; }
+.meeting-studio .live-meeting-status { order: 3; margin: 0; padding: 6px 9px; color: #d0c4a5; background: #353229; border: 0; border-radius: 20px; font-size: 10px; white-space: nowrap; }
+.meeting-studio .live-connection-dot.connected { background: var(--call-gold); }
+.meeting-studio .studio-layout-toggle { order: 4; min-height: 36px; padding: 8px; border: 1px solid #414147; background: #303034; color: #e4e2e8; border-radius: 50%; }
+.meeting-studio .studio-layout-toggle > span { display: none; }
+.meeting-studio .live-meeting-main { display: flex; flex-direction: column; width: 100%; min-height: 0; max-width: none; padding: 12px 24px 0; overflow: auto; background: var(--call-surface); }
+.meeting-studio .live-meeting-workspace { flex: 1; min-height: 0; width: 100%; align-items: stretch; gap: 22px; }
+.meeting-studio .live-meeting-workspace.with-panel { grid-template-columns: minmax(0, 1fr) 300px; }
+.meeting-studio .live-meeting-stage { display: flex; flex-direction: column; height: 100%; min-height: 280px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: hidden; }
+.meeting-studio .wb-video-normal { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.meeting-studio .live-meeting-canvas { width: 100%; height: 100%; min-height: 240px; flex: 1; }
+.meeting-studio .live-meeting-grid { gap: 18px; padding: 4px; align-content: center; }
+.meeting-studio .live-participant-tile, .meeting-studio .live-presentation-tile { background: #2c2c31; border: 2px solid transparent; border-radius: 20px; box-shadow: none; }
+.meeting-studio .live-participant-tile.is-speaking { border-color: var(--call-gold); box-shadow: 0 0 0 1px #d2b16a66; }
+.meeting-studio .live-participant-placeholder { background: radial-gradient(ellipse at center, #35353b, #29292e); gap: 12px; }
+.meeting-studio .live-participant-placeholder > .talk-avatar { width: 106px; height: 106px; border: 1px solid #68646a; background: #414046; color: #fff; box-shadow: none; font-size: 38px; }
+.meeting-studio .live-meeting-stage[data-solo="true"] .live-participant-placeholder > .talk-avatar { width: 140px; height: 140px; font-size: 48px; }
+.meeting-studio .live-participant-placeholder p { color: #c5c3cc; font-size: 12px; }
+.meeting-studio .live-participant-name,
+.meeting-studio .live-meeting-grid:has(> article:nth-child(5)) .live-participant-name {
+  left: 12px; bottom: 12px; max-width: calc(100% - 64px); padding: 8px 11px;
+  background: #202024dc; border: 0; border-radius: 30px; font-size: 13px; gap: 8px;
+}
+.meeting-studio .live-participant-name > svg[aria-label="Microphone on"],
+.meeting-studio .live-participant-name > svg[aria-label="Microphone off"] { order: -1; color: var(--call-gold); width: 17px; height: 17px; }
+.meeting-studio .live-participant-name > svg[aria-label="Microphone off"] { color: #ee777f; }
+.meeting-studio .studio-tile-muted { position: absolute; bottom: 12px; right: 12px; display: grid; place-items: center; width: 33px; height: 33px; border-radius: 50%; color: var(--call-gold); background: #202024d9; }
+.meeting-studio .live-tile-pin, .meeting-studio .studio-fullscreen { color: #eeeaf0; background: #303034dc; border-color: #55525b; border-radius: 50%; }
+.meeting-studio .live-tile-pin.is-selected { color: var(--call-gold); }
+.meeting-studio .live-meeting-stage[data-solo="true"] .live-tile-pin { top: 12px; bottom: auto; }
+.meeting-studio .live-meeting-panel { min-height: 280px; height: 100%; border: 0; border-left: 1px solid #414147; border-radius: 0; background: var(--call-panel); color: #eeedf2; }
+.meeting-studio .live-meeting-panel > header { padding: 12px 16px; border-color: #414147; }
+.meeting-studio .live-meeting-panel h2 { font-size: 13px; color: #d5d3dc; }
+.meeting-studio .live-meeting-panel > header > button { background: #333338; color: #e4e2eb; }
+.meeting-studio .studio-side-tabs { display: flex; flex-shrink: 0; border-bottom: 1px solid #414147; }
+.meeting-studio .studio-side-tabs button { flex: 1; padding: 13px 16px; background: transparent; color: #a9a6b1; border-bottom: 2px solid transparent; font-size: 16px; }
+.meeting-studio .studio-side-tabs button[aria-pressed="true"] { color: #f3f2f5; border-color: var(--call-gold); }
+.meeting-studio .live-panel-body { padding: 16px; }
+/* Camera settings reuse light-page components; give every state explicit
+   foreground/background colors inside the dark call panel. */
+.meeting-studio .live-meeting-panel .talk-settings-tabs button {
+  color: #eeedf2; background: #37373d; border-color: #615a66;
+}
+.meeting-studio .live-meeting-panel .talk-settings-tabs button:hover { background: #49434d; }
+.meeting-studio .live-meeting-panel .talk-settings-tabs button[aria-pressed="true"] {
+  color: #f4dca9; background: #50452e; border-color: #b99b5c;
+}
+.meeting-studio .live-meeting-panel .talk-background-settings { color: #f3f2f5; }
+.meeting-studio .live-meeting-panel .talk-background-settings h3 { color: #f3f2f5; }
+.meeting-studio .live-meeting-panel .talk-background-settings .talk-blur-control {
+  color: #f3f2f5;
+  font-weight: 500;
+}
+.meeting-studio .live-meeting-panel .talk-background-settings :is(p, .talk-studio-option > span > span) { color: #c8c3ce; }
+.meeting-studio .live-meeting-panel :is(.talk-background-grid button, .talk-effects-reset, .talk-studio-option) {
+  color: #eeedf2; background: #333338; border-color: #615a66;
+}
+.meeting-studio .live-meeting-panel :is(.talk-background-grid button[aria-pressed="true"], .talk-studio-option:has(input:checked)) {
+  color: #f4dca9; background: #50452e; border-color: #b99b5c;
+}
+.meeting-studio .live-meeting-panel .talk-effects-reset:hover { background: #49434d; }
+.meeting-studio .live-meeting-panel .talk-background-upload { color: #eeedf2; border-color: #615a66; }
+.meeting-studio .live-meeting-panel .talk-background-settings :is(input, output) { accent-color: #d2b16a; }
+.meeting-studio .live-meeting-panel .talk-background-settings output { color: #f4dca9; }
+.meeting-studio .live-meeting-panel .talk-background-settings .talk-background-error { color: #ffbec6; }
+.meeting-studio .live-meeting-panel :is(.talk-background-upload, .talk-studio-option, .talk-blur-control input):focus-within {
+  outline-color: #f4dca9;
+}
+.meeting-studio :is(.live-panel-caption, .live-chat-privacy, .live-person-status) { color: #b9b6c2; }
+.meeting-studio .live-chat-privacy { font-size: 10px; padding: 10px 16px; border-bottom: 1px solid #35353b; }
+.meeting-studio .live-chat-list { padding: 12px 16px; }
+.meeting-studio .live-chat-message, .meeting-studio .live-chat-message.is-local { background: transparent; border: 0; padding: 7px 0 18px; border-radius: 0; }
+.meeting-studio .live-chat-message strong { color: var(--call-gold); font-size: 13px; }
+.meeting-studio .live-chat-message p { color: #eeedf1; font-size: 14px; line-height: 1.65; }
+.meeting-studio .live-chat-message time { color: #aba7b4; font-size: 10px; }
+.meeting-studio .live-chat-compose { border-color: #414147; padding: 12px 16px 16px; }
+.meeting-studio .live-chat-compose textarea { color: #f0edf4; background: #2a292f; border: 1px solid #56525e; border-radius: 13px; min-height: 48px; }
+.meeting-studio .live-chat-compose > div > button { background: #d2b16a; color: #202024; border-radius: 10px; }
+.meeting-studio .live-people-list li { border-color: #414147; }
+.meeting-studio :is(.live-person-pin, .live-settings-field select) { color: #e8e3ed; background: #333338; border-color: #56525e; }
+.meeting-studio .live-meeting-notice { margin-bottom: 12px; padding: 10px 14px; border-color: #5b523e; background: #363127; color: #e1d5b7; font-size: 12px; }
+.meeting-studio .live-meeting-notice.is-error { border-color: #7c414b; background: #3c292e; color: #ffbec6; }
+.meeting-studio .live-meeting-waiting { bottom: 12px; padding: 7px 12px; background: #252529e8; border-color: #585142; color: #d9c99e; }
+.meeting-studio .studio-empty-stage { padding: 32px 24px; min-height: 280px; gap: 16px; background: radial-gradient(ellipse at center, #34313870, transparent 68%); }
+.meeting-studio .studio-empty-stage h2 { color: #f2edf0; font-size: clamp(22px, 2.4vw, 30px); }
+.meeting-studio .studio-empty-stage > p { color: #bcb7c6; max-width: 440px; }
+.meeting-studio .studio-state-avatar > .talk-avatar { background: #39363d; border-color: #b99b5c; color: #f4f0e6; box-shadow: 0 0 0 10px #d2b16a09, 0 0 55px #d2b16a0a; }
+.meeting-studio .studio-state-avatar > span:last-child { background: #5e5034; color: #f1dfb0; border-color: #252529; }
+.meeting-studio .studio-state-pill { color: #e5d1a0; background: #393326; border-color: #6b5b36; }
+.meeting-studio .studio-empty-stage .secondary-button { background: #343138; border-color: #625a69; color: #eeeaf2; }
+.meeting-studio[data-connection-state="waiting"] .studio-state-avatar { margin-bottom: 18px; }
+.meeting-studio[data-connection-state="waiting"] .studio-empty-stage h2 { font-size: 22px; line-height: 1.4; }
+.meeting-studio[data-connection-state="waiting"] .studio-empty-stage > p { font-size: 15px; line-height: 1.6; max-width: 480px; }
+.meeting-studio[data-connection-state="waiting"] .studio-state-pill { font-size: 13px; }
+.meeting-studio[data-connection-state="waiting"] .studio-empty-stage .secondary-button { font-size: 14px; }
+.meeting-studio .live-meeting-controls {
+  position: relative; inset: auto; left: auto; right: auto; bottom: auto; transform: none;
+  display: flex; justify-content: center; min-height: 102px; width: 100%; max-width: none;
+  padding: 20px 174px 24px; gap: 10px; border: 0; border-radius: 0 0 20px 20px;
+  background: var(--call-surface); box-shadow: none; backdrop-filter: none;
+}
+.meeting-studio .room-device-controls { gap: 10px; flex: 0 0 auto; }
+.meeting-studio .live-toolbar-tools { flex: 0 1 auto; min-width: 0; gap: 10px; justify-content: center; }
+.meeting-studio .room-device-controls button,
+.meeting-studio .live-toolbar-tools > button {
+  width: 50px; min-width: 50px; max-width: 50px; height: 50px; min-height: 50px;
+  padding: 13px; gap: 0; border-radius: 50%; border: 1px solid transparent;
+  background: #37373d; color: #f0eef4;
+}
+.meeting-studio .room-device-controls button.off { background: #3d3035; color: #f29aa3; }
+.meeting-studio .room-device-controls button.on { background: #37373d; border-color: transparent; }
+.meeting-studio .room-device-controls button.off > svg { color: inherit; }
+.meeting-studio .room-device-controls button > span, .meeting-studio .live-toolbar-tools > button > span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.meeting-studio .live-toolbar-tools > button:hover, .meeting-studio .room-device-controls button:hover { background: #4a454b; }
+.meeting-studio .live-toolbar-tools > button.is-selected { color: #f0d392; background: #50452e; border-color: #aa8e53; }
+.meeting-studio .live-meeting-controls > .leave-button { position: absolute; right: 24px; top: 22px; min-height: 48px; padding: 12px 18px; border-radius: 12px; background: #da3e43; color: #fff; border: 0; font-size: 14px; }
+.meeting-studio .live-meeting-controls > .leave-button:hover { background: #ed4c50; }
+.meeting-studio .live-meeting-controls > .leave-button > span { display: inline; }
+.meeting-studio .live-meeting-controls > .leave-button > svg { display: none; }
+.meeting-studio .studio-session-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0 0; min-width: 0; }
+.meeting-studio .studio-session-title { color: #eeeaf3; font-size: 16px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meeting-studio .studio-session-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.meeting-studio .studio-session-actions > button { position: relative; display: flex; align-items: center; gap: 8px; padding: 10px 14px; min-height: 42px; border-radius: 11px; background: #242428; color: #eeeaf4; font-size: 13px; }
+.meeting-studio .studio-session-actions > button.is-selected { color: #e5cc96; background: #302c25; }
+.meeting-studio .live-unread-badge { background: #b79854; color: #15151a; }
+.meeting-studio .live-reactions { bottom: 145px; }
+@media (max-width: 1200px) {
+  .meeting-studio { padding: 18px 18px 12px; }
+  .meeting-studio .live-meeting-controls { padding-inline: 130px; }
+  .meeting-studio .room-device-controls, .meeting-studio .live-toolbar-tools { gap: 7px; }
+  .meeting-studio .live-meeting-controls > .leave-button { right: 16px; padding-inline: 12px; }
+  .meeting-studio .live-meeting-workspace.with-panel { grid-template-columns: minmax(0, 1fr) 280px; }
+}
+@media (max-width: 1000px) {
+  .meeting-studio .room-header { padding: 12px 16px; gap: 12px; }
+  .meeting-studio .room-title strong { font-size: 15px; }
+  .meeting-studio .live-meeting-status { display: none; }
+  .meeting-studio .live-meeting-main { padding: 8px 14px 0; }
+  .meeting-studio .live-meeting-controls { justify-content: flex-start; padding: 16px 78px 18px 16px; }
+  .meeting-studio .live-toolbar-tools { flex: 1; justify-content: flex-start; overflow-x: auto; scrollbar-width: thin; }
+  .meeting-studio .live-meeting-controls > .leave-button { width: 48px; padding: 12px; }
+  .meeting-studio .live-meeting-controls > .leave-button > span { display: none; }
+  .meeting-studio .live-meeting-controls > .leave-button > svg { display: block; }
+  .meeting-studio .live-meeting-workspace.with-panel { grid-template-columns: minmax(0, 1fr) 260px; }
+}
+@media (max-width: 700px) {
+  .meeting-studio { height: 100svh; min-height: 540px; padding: 8px 8px max(8px, env(safe-area-inset-bottom)); }
+  .meeting-studio .room-header { min-height: 84px; gap: 8px 10px; border-radius: 16px 16px 0 0; }
+  .meeting-studio .room-brand { font-size: 20px; padding-right: 10px; }
+  .meeting-studio .room-brand .studio-brand-mark { width: 23px; height: 23px; }
+  .meeting-studio .room-title { order: 5; flex-basis: 100%; max-width: 100%; }
+  .meeting-studio .room-title strong { font-size: 13px; }
+  .meeting-studio .live-meeting-summary { font-size: 11px; gap: 8px; }
+  .meeting-studio .live-meeting-summary time { font-size: 11px; padding: 7px 9px; }
+  .meeting-studio .live-meeting-summary time svg { display: none; }
+  .meeting-studio .studio-layout-toggle { order: 3; min-height: 30px; padding: 5px; }
+  .meeting-studio .live-meeting-main { padding: 8px 8px 0; }
+  .meeting-studio .live-meeting-grid { gap: 8px; }
+  .meeting-studio .live-participant-tile { border-radius: 14px; }
+  .meeting-studio .live-participant-name, .meeting-studio .live-meeting-grid:has(> article:nth-child(5)) .live-participant-name { left: 7px; bottom: 7px; max-width: calc(100% - 15px); font-size: 10px; padding: 6px 8px; gap: 5px; }
+  .meeting-studio .studio-tile-muted { display: none; }
+  .meeting-studio .live-participant-placeholder > .talk-avatar { width: 60px; height: 60px; font-size: 26px; }
+  .meeting-studio .live-meeting-stage[data-solo="true"] .live-participant-placeholder > .talk-avatar { width: 110px; height: 110px; font-size: 38px; }
+  .meeting-studio .live-meeting-controls { min-height: 76px; gap: 6px; padding: 12px 60px 14px 8px; border-radius: 0 0 16px 16px; }
+  .meeting-studio .room-device-controls { gap: 6px; }
+  .meeting-studio .room-device-controls button, .meeting-studio .live-toolbar-tools > button { width: 40px; min-width: 40px; max-width: 40px; height: 40px; min-height: 40px; padding: 10px; }
+  .meeting-studio .live-meeting-controls > .leave-button { top: 12px; right: 8px; width: 40px; min-height: 40px; height: 40px; padding: 10px; }
+  .meeting-studio .studio-session-footer { padding-top: 10px; gap: 8px; }
+  .meeting-studio .studio-session-title { font-size: 12px; max-width: 42%; }
+  .meeting-studio .studio-session-actions { gap: 6px; }
+  .meeting-studio .studio-session-actions > button { min-height: 38px; padding: 8px 10px; font-size: 11px; gap: 5px; }
+  .meeting-studio .live-meeting-workspace.with-panel { grid-template-columns: minmax(0, 1fr); }
+  .meeting-studio .live-meeting-panel { position: fixed; z-index: 60; inset: 54px 12px 70px; height: auto; min-height: 0; border: 1px solid #55505d; border-radius: 18px; box-shadow: 0 16px 60px #0009; }
+  .meeting-studio .studio-empty-stage { padding: 20px 12px; }
+  .meeting-studio .studio-empty-stage h2 { font-size: 23px; }
+  .meeting-studio .studio-state-avatar { width: 96px; height: 96px; }
+  .meeting-studio .studio-empty-stage > p { font-size: 12px; }
+  .meeting-studio .live-meeting-notice { padding: 8px 10px; font-size: 11px; }
+  .meeting-studio .live-reactions { bottom: 130px; }
+}

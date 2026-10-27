@@ -152,15 +152,23 @@ export function createVerificationMailer(env, { createTransport = nodemailer.cre
   }
   return {
     configured,
-    async sendVerification({ to, code, expiresAt, deliveryTest = false }) {
+    async sendVerification({ to, code, expiresAt, deliveryTest = false, purpose = 'verification' }) {
       const recipient = emailAddress(to);
       if (!recipient) throw new TypeError('A valid verification recipient is required.');
       const content = verificationContent(code, expiresAt, deliveryTest === true);
+      if(purpose==='password-reset'&&!deliveryTest){
+        for(const format of ['text','html'])content[format]=content[format]
+          .replaceAll('Use this code to verify your email address for Talk.','Use this code to reset your Talk password.')
+          .replaceAll('Verify your email','Reset your password')
+          .replaceAll('Verify your Talk email','Reset your Talk password')
+          .replaceAll('verification screen','password reset screen')
+          .replaceAll('Enter verification codes only','Enter password reset codes only');
+      }
       try {
         const result = await getTransport().sendMail({
           from: configuration.from,
           to: { address: recipient },
-          subject: deliveryTest === true ? 'Talk verification email - delivery test' : 'Your Talk verification code',
+          subject: deliveryTest === true ? 'Talk verification email - delivery test' : purpose==='password-reset'?'Your Talk password reset code':'Your Talk verification code',
           ...content,
           disableFileAccess: true,
           disableUrlAccess: true,

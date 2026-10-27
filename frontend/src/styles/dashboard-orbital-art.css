@@ -1,0 +1,39 @@
+/* Motion adapted from the supplied talk_orbital_animation.html, scoped to Overview. */
+.dashboard-orbital-art .orbital-illustration {position:absolute;inset:0}
+.workspace-reference .dashboard-orbital-art .dashboard-art-logo {left:51.470588%}
+.workspace-reference .dashboard-orbital-art svg {opacity:1;overflow:visible}
+.workspace-reference .dashboard-orbital-art svg circle {fill:none}
+.workspace-reference .dashboard-orbital-art svg .orbital-hub-fill {fill:#ffffff24}
+.orbital-sway {transform-origin:175px 88px;animation:talk-overview-orbit-sway 8s ease-in-out infinite}
+.orbital-ripple {transform-origin:175px 88px;opacity:0;animation:talk-overview-orbit-ripple 4s cubic-bezier(.2,.6,.4,1) infinite}
+.orbital-ripple-2 {animation-delay:-1.3s}
+.orbital-ripple-3 {animation-delay:-2.6s}
+.orbital-flow {opacity:.55}
+.orbital-flow-gold {stroke-dasharray:3 22;animation:talk-overview-orbit-flow 28s linear infinite}
+.orbital-flow-white {stroke-dasharray:2 28;animation:talk-overview-orbit-flow 24s linear infinite reverse}
+.dashboard-orbital-art .person-one {animation:talk-overview-orbit-float-left 6.2s ease-in-out infinite}
+.dashboard-orbital-art .person-two {animation:talk-overview-orbit-float-top 5.5s ease-in-out -.6s infinite}
+.dashboard-orbital-art .person-three {animation:talk-overview-orbit-float-bottom 6.8s ease-in-out -1.2s infinite}
+.orbital-beams line {opacity:0;transition:opacity .3s ease}
+.dashboard-orbital-art:has(.person-one:hover) .orbital-beam-one,
+.dashboard-orbital-art:has(.person-two:hover) .orbital-beam-two,
+.dashboard-orbital-art:has(.person-three:hover) .orbital-beam-three {opacity:.8}
+.dashboard-orbital-art .dashboard-art-person {transition:box-shadow .3s ease}
+.dashboard-orbital-art .dashboard-art-person:hover {box-shadow:0 0 18px #fff2b299}
+.dashboard-orbital-art[data-paused=true] .orbital-animated {animation-play-state:paused}
+.workspace-reference .dashboard-orbital-art .orbital-motion-toggle {position:absolute;bottom:-12px;right:0;display:grid;place-items:center;width:28px;height:28px;min-height:28px;padding:0;border:1px solid #ffffff55;border-radius:9px;background:#ffffff14;color:#fff;box-shadow:none;cursor:pointer}
+.workspace-reference .dashboard-orbital-art .orbital-motion-toggle:hover {background:#ffffff30}
+.workspace-reference .dashboard-orbital-art .orbital-motion-toggle svg {position:static;inset:auto;width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;opacity:1}
+.workspace-reference .dashboard-orbital-art .orbital-motion-toggle:focus-visible {outline:2px solid white;outline-offset:3px}
+@keyframes talk-overview-orbit-sway {0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.025) rotate(1.2deg)}}
+@keyframes talk-overview-orbit-ripple {0%{transform:scale(.7);opacity:.5}50%{opacity:.25}100%{transform:scale(1.6);opacity:0}}
+@keyframes talk-overview-orbit-flow {to{stroke-dashoffset:-1000}}
+@keyframes talk-overview-orbit-float-left {0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(4px,-10px) rotate(-1.5deg)}66%{transform:translate(-5px,6px) rotate(1deg)}}
+@keyframes talk-overview-orbit-float-top {0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(-6px,-8px) rotate(1.8deg)}66%{transform:translate(5px,8px) rotate(-1deg)}}
+@keyframes talk-overview-orbit-float-bottom {0%,100%{transform:translate(0,0) rotate(0deg)}33%{transform:translate(6px,9px) rotate(-1.2deg)}66%{transform:translate(-4px,-7px) rotate(1.4deg)}}
+@media(prefers-reduced-motion:reduce){
+ .dashboard-orbital-art .orbital-animated {animation:none!important}
+ .dashboard-orbital-art :is(.orbital-ripple,.orbital-flow) {opacity:0}
+ .dashboard-orbital-art .orbital-beams line {transition:none}
+ .workspace-reference .dashboard-orbital-art .orbital-motion-toggle {display:none}
+}

@@ -1,0 +1,78 @@
+/* Compact viewport layout for sign-in/sign-up only. OTP pages keep their
+   existing layout. Exceptional long errors/zoom can scroll inside the form. */
+.signin-page.auth-transition {
+  height: 100svh; min-height: 0; grid-template-rows: minmax(0, 1fr);
+  gap: 20px; padding: 12px; overflow: hidden;
+}
+.signin-page.auth-transition > .signin-visual { min-height: 0; height: 100%; padding: 24px 32px; }
+.auth-transition .signin-visual-copy { margin-top: 24px; }
+.auth-transition .signin-visual-copy h2 { margin-top: 12px; font-size: clamp(30px, 3vw, 42px); line-height: 1.16; }
+.auth-transition .signin-visual-copy > p { margin-top: 12px; font-size: 14px; line-height: 1.6; }
+.auth-transition .signin-globe { flex: 1; height: auto; min-height: 160px; max-height: 400px; margin-block: 8px; }
+.auth-transition .signin-visual-proof { margin-top: auto; flex-shrink: 0; }
+.auth-transition .signin-visual-return { margin-top: 12px; flex-shrink: 0; }
+.auth-transition .signin-visual-return[aria-hidden="true"] { visibility: hidden; pointer-events: none; }
+.auth-transition .signin-visual-return > a { min-height: 40px; padding: 9px 20px; }
+.signin-page.auth-transition > .auth-transition-forms { height: 100%; min-height: 0; }
+.auth-transition-ready.auth-transition > .auth-transition-forms { transition: transform var(--auth-motion), opacity 320ms ease 120ms; }
+.auth-transition-ready.auth-transition > .auth-transition-forms[data-changing="true"] { transition: transform var(--auth-motion), opacity 180ms ease; }
+.auth-transition .auth-transition-view > .signin-form-side {
+  height: 100%; min-height: 0; padding: 4px 20px; gap: 6px;
+  overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
+}
+.auth-transition .signin-form-nav { min-height: 28px; flex-shrink: 0; margin-bottom: 0; }
+.auth-transition .auth-transition-view .signin-card {
+  flex-shrink: 0; padding: 16px 20px;
+  box-shadow: 0 16px 36px rgb(7 28 71 / 18%), 0 4px 12px rgb(7 28 71 / 12%);
+}
+.auth-transition .signin-card-icon { width: 32px; height: 32px; margin-bottom: 10px; border-radius: 10px; }
+.auth-transition .signin-card-description { margin-top: 6px; margin-bottom: 12px; }
+.auth-transition .auth-entry-layout { margin-top: 0; }
+.auth-transition .auth-entry-phone { margin-bottom: 12px; }
+.auth-transition .auth-phone-option { min-height: 44px; padding: 10px 8px; gap: 6px; font-size: 12px; line-height: 20px; }
+.auth-transition .auth-phone-option svg { flex-shrink: 0; }
+.auth-transition .auth-entry-fields .form-input { min-height: 44px; padding-block: 10px; }
+.auth-transition .signup-field + .signup-field { margin-top: 10px; }
+.auth-transition .signup-field-hint, .auth-transition .signup-field-error { margin-top: 4px; line-height: 1.45; }
+.auth-transition .signin-password-label { margin-top: 12px; }
+.auth-transition .auth-email-help { margin-top: 8px; line-height: 1.45; }
+.auth-transition .auth-email-help a { display: inline-flex; align-items: center; gap: 4px; }
+.auth-transition .auth-entry-guidance { display: block; margin-top: 6px; }
+.auth-transition .signin-submit { min-height: 44px; margin-top: 12px; padding: 10px 16px; }
+.auth-transition .signin-signup-button { min-height: 44px; margin-top: 8px; padding: 10px 16px; }
+.auth-transition .signin-card-divider { margin-block: 12px; }
+.auth-transition .signin-page-footer { padding-top: 4px; flex-shrink: 0; }
+@media (max-height: 900px) { .auth-transition .signin-card-icon { display: none; } }
+@media (max-height: 800px) {
+  /* Supporting explanations remain available to assistive technology. */
+  .auth-transition .auth-entry-guidance {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+  }
+}
+@media (max-height: 680px) {
+  .auth-transition .signin-card-description { display: none; }
+  .auth-transition .auth-transition-view .signin-card { padding-block: 12px; }
+  .auth-transition .signin-card h1 { font-size: 28px; margin-bottom: 12px; }
+  .auth-transition .signup-field + .signup-field { margin-top: 8px; }
+  .auth-transition .signin-visual-copy { margin-top: 16px; }
+  .auth-transition .signin-visual-copy h2 { font-size: 30px; }
+}
+@media (max-width: 767px) {
+  .signin-page.auth-transition { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 10px; }
+  /* Keep the Earth mounted, but reserve the phone viewport for authentication. */
+  .signin-page.auth-transition > .signin-visual { display: none; }
+  .auth-transition .auth-transition-view > .signin-form-side { padding: 0; }
+  .auth-transition .signin-form-nav { margin-bottom: 0; }
+  .auth-transition .auth-transition-view .signin-card { width: 100%; padding: 16px; }
+  .auth-transition .auth-entry-layout.has-provider { grid-template-columns: minmax(0, 1fr) 12px 48px; column-gap: 8px; row-gap: 0; }
+  .auth-transition .auth-entry-layout.has-provider > .auth-entry-fields { grid-column: 1; grid-row: 1; }
+  .auth-transition .auth-entry-or { grid-column: 2; grid-row: 1; flex-direction: column; gap: 14px; }
+  .auth-transition .auth-entry-or::before, .auth-transition .auth-entry-or::after { width: 1px; height: auto; min-height: 24px; }
+  .auth-transition .auth-entry-providers { grid-column: 3; grid-row: 1; width: 100%; max-width: none; }
+  .auth-transition .auth-entry-providers .google-account-chooser-link { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-transition-ready.auth-transition > .auth-transition-forms,
+  .auth-transition-ready.auth-transition > .auth-transition-forms[data-changing="true"] { transition: none; }
+}

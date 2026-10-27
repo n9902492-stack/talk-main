@@ -1,0 +1,21 @@
+// Server process only. It never owns, starts, stops or watches a connector PID.
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {createServer} from 'node:http';
+import {createBookingTestApp} from '../backend/src/scheduling/booking-link-test.mjs';import {loadSwitchConfiguration,switchStateFile} from './smtp-reliability-switch-config.mjs';
+let runtime,server,heartbeat,poll,closing=false,launch,origin=null;
+let dispatch=(_req,res)=>res.writeHead(503,{'Cache-Control':'no-store','Content-Type':'application/json'}).end('{"ready":false,"isolatedBookingTest":true}');
+const save=value=>fs.writeFileSync(launch.serverState,JSON.stringify({serverPid:process.pid,listener:'127.0.0.1:3003',launchId:launch.id,origin,updatedAt:new Date().toISOString(),...value},null,2),{mode:0o600});
+async function close(){if(closing)return;closing=true;clearInterval(heartbeat);clearInterval(poll);dispatch=(_req,res)=>res.writeHead(503).end();server?.closeAllConnections();if(server?.listening)await new Promise(resolve=>server.close(resolve));await runtime?.close();if(launch)save({status:'STOPPED'});}
+try{
+ assert.deepEqual(process.argv.slice(2,3),['--approved-independent-server']);assert.equal(process.argv.length,4);launch=JSON.parse(fs.readFileSync('artifacts/qa/smtp-reliability-independent-launch.json','utf8'));assert.equal(process.argv[3],launch.id);assert.equal(launch.approvedAction,'new-independent-tunnel');assert.ok(Date.now()<launch.bookingStart);assert.equal(launch.servicesDisabled,true);
+ const parent=path.resolve('data/smtp-reliability-test');assert.ok(path.resolve(launch.directory).startsWith(parent+path.sep));assert.equal(fs.realpathSync(launch.directory),launch.directory);assert.equal(launch.originFile,path.join(launch.directory,'origin.private.json'));assert.equal(launch.serverState,path.join(launch.directory,'server-state.json'));
+ server=createServer((req,res)=>dispatch(req,res));await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(3003,'127.0.0.1',resolve);});assert.equal(server.address().address,'127.0.0.1');save({status:'WAITING_FOR_APPROVED_ORIGIN'});
+ process.once('SIGINT',()=>void close());process.once('SIGTERM',()=>void close());
+ let binding=false;poll=setInterval(async()=>{if(binding||closing||!fs.existsSync(launch.originFile))return;binding=true;
+  try{
+   const approved=JSON.parse(fs.readFileSync(launch.originFile,'utf8'));assert.equal(approved.launchId,launch.id);assert.equal(approved.independenceVerified,true);assert.ok(Number.isInteger(approved.connectorPid)&&approved.connectorPid!==process.pid);assert.ok(Date.now()<launch.bookingStart);const c=loadSwitchConfiguration({preparedOrigin:approved.origin});assert.equal(c.fixture.bookingId,launch.bookingId);assert.equal(c.fixture.databasePath,launch.database);
+   process.env.SCHEDULING_PUBLIC_URL=c.config.origin;process.env.SCHEDULING_EMAIL_ENABLED='false';runtime=createBookingTestApp(c.config,c.fixture);runtime.attach(server);origin=c.config.origin;dispatch=(req,res)=>runtime.app(req,res);clearInterval(poll);
+   const state=()=>fs.writeFileSync(switchStateFile,JSON.stringify({origin,connected:true,running:true,controllerPid:process.pid,connectorPid:approved.connectorPid,listener:'127.0.0.1:3003',database:path.relative(process.cwd(),launch.database),bookingId:launch.bookingId,scheduledPublicUrl:origin,smtp:false,otp:false,sms:false,recording:false,transcription:false,gemini:false,calendar:false,runtimeType:'smtp-reliability-test',independentlyManaged:true,launchId:launch.id,updatedAt:new Date().toISOString()},null,2),{mode:0o600});
+   state();heartbeat=setInterval(state,15000);heartbeat.unref();save({status:'READY',smtp:false,otp:false,connectorManagedByServer:false});console.log(JSON.stringify({ready:true,origin,listener:'127.0.0.1:3003',smtp:false,otp:false,connectorManagedByServer:false}));
+  }catch{save({status:'PREFLIGHT_FAILED'});await close();console.error('Independent server binding preflight failed. Routes closed; connector untouched.');process.exitCode=1;}
+ },250);
+}catch{await close().catch(()=>{});console.error('Independent loopback server startup failed. No connector or email started.');process.exitCode=1;}

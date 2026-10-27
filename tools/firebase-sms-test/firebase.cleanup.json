@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "site": "talk-fc3dc",
+    "public": "cleanup",
+    "ignore": ["**/.*"],
+    "predeploy": ["node ../../scripts/check-sms-test.mjs --cleanup-live-guard"],
+    "headers": [{"source":"**","headers":[
+      {"key":"Cache-Control","value":"private, no-store"},
+      {"key":"X-Robots-Tag","value":"noindex, nofollow"},
+      {"key":"Content-Security-Policy","value":"default-src 'none'; frame-ancestors 'none'; base-uri 'none'"}
+    ]}]
+  }
+}

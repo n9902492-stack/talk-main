@@ -1,0 +1,12 @@
+// Existing origin only. Never starts services, adds routes or sends messages.
+import fs from 'node:fs';import path from 'node:path';import {request} from 'node:http';import dotenv from 'dotenv';
+const launch=JSON.parse(fs.readFileSync('artifacts/qa/smtp-reliability-independent-launch.json','utf8')),assigned=JSON.parse(fs.readFileSync(path.join(launch.directory,'assigned-origin.json'),'utf8'));
+if(assigned.launchId!==launch.id||!/^https:\/\/[-a-z0-9]+\.trycloudflare\.com$/.test(assigned.origin))throw Error('Existing public origin metadata unavailable.');
+const origin=assigned.origin,test=dotenv.parse(fs.readFileSync('.env.tunnel-test.local')),emails=(test.TUNNEL_TEST_EMAILS||'').split(',').map(v=>v.trim().toLowerCase());
+let stateValid=false;try{const s=JSON.parse(fs.readFileSync('data/booking-link-test/confirmation-public-tunnel.json','utf8'));stateValid=s.origin===origin;}catch{}
+const report={checkedAt:new Date().toISOString(),origin,runtimeStatusMetadataValid:stateValid,allowlistCount:emails.length,allowlistUnique:new Set(emails).size,configuredLivekitCloud:/^wss:\/\/[-a-z0-9]+\.livekit\.cloud\/?$/.test(test.LIVEKIT_URL||''),checks:[],emailSent:0,routesChanged:false};
+const paths=['/healthz','/sign-in','/sign-up','/booking-confirmation','/dashboard','/bookings','/meetings','/meeting','/api/auth/scheduling/dashboard'];
+await Promise.all(paths.map(async p=>{try{const r=await fetch(origin+p,{redirect:'manual',signal:AbortSignal.timeout(12000)});const h=p==='/healthz'?await r.json():undefined;report.checks.push({path:p,status:r.status,...h?{health:h}:{}});}catch{report.checks.push({path:p,status:'UNREACHABLE'});}}));
+try{report.localHealth=await new Promise((resolve,reject)=>{const req=request({host:'127.0.0.1',port:3003,path:'/healthz',headers:{Host:new URL(origin).host,'X-Forwarded-Proto':'https','CF-Connecting-IP':'192.0.2.87'},timeout:6000},res=>{let data='';res.on('data',b=>data+=b);res.on('end',()=>{try{resolve({status:res.statusCode,health:JSON.parse(data)});}catch{resolve({status:res.statusCode});}});});req.on('error',reject);req.on('timeout',()=>req.destroy(Error('timeout')));req.end();});}catch{report.localHealth={status:'UNREACHABLE'};}
+try{report.mainAppStatus=(await fetch('http://127.0.0.1:3001/',{signal:AbortSignal.timeout(5000)})).status;}catch{report.mainAppStatus='UNREACHABLE';}
+report.checks.sort((a,b)=>a.path.localeCompare(b.path));fs.writeFileSync('artifacts/qa/five-user-public-readiness.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

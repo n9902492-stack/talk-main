@@ -1,0 +1,22 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';
+import {openPostgresDatabase} from '../backend/src/postgres-database.mjs';import {schedulingHarness} from './helpers/scheduling.mjs';import {secret} from '../backend/src/scheduling/service.mjs';
+const enabled=process.env.TALK_POSTGRES_TEST==='1'&&process.env.PGHOST==='127.0.0.1'&&process.env.PGDATABASE==='talk_auth_test';
+test('PostgreSQL scheduling migrations, parallel requests, private bookings, guest admission and restart persistence',{skip:!enabled},async t=>{
+ let db=await openPostgresDatabase(process.env,{migrate:true}),h=await schedulingHarness({database:db});t.after(async()=>{await h.close();await db.close();});
+ let host=await h.account('pg-schedule-'+randomUUID());const profile={slug:'pg-'+randomUUID(),timezone:'America/New_York',settings:{notice:0},windows:Array.from({length:7},(_,weekday)=>({weekday,start:0,end:1440}))};assert.equal((await host.request('scheduling/profile',profile)).status,200);
+ const e=(await host.request('scheduling/events',{title:'Postgres fixture',slug:'fixture',duration:30,capacity:1})).body.event,guest=h.client(),form=(await guest.request('scheduling/form')).body.formToken;let start=Math.ceil((h.now()+30*60000)/900000)*900000;
+ // Avoid host-local midnight and preserve a full slot on every test date.
+ const slots=(await guest.request(`scheduling/events/${e.id}/slots?from=${start}&to=${start+86400000}&timezone=UTC`)).body.slots;start=slots[0].start;
+ const bodies=Array.from({length:6},()=>({start,credential:secret(),name:'Synthetic PG Guest',email:'pg@example.test',timezone:'UTC',answers:{}}));
+ const results=await Promise.all(bodies.map(b=>guest.request('scheduling/events/'+e.id+'/book',b,{'X-Scheduling-Token':form})));assert.equal(results.filter(r=>r.status===201).length,1);assert.equal(results.filter(r=>r.status===409).length,5);
+ const winner=results.findIndex(r=>r.status===201),b=results[winner].body.booking,body=bodies[winner];assert.equal((await guest.request('scheduling/events/'+e.id+'/book',body,{'X-Scheduling-Token':form})).body.booking.id,b.id);
+ await db.withContext(()=>db.prepare("UPDATE scheduling_jobs SET status='cancelled' WHERE booking_id=? AND kind<>'confirmation:invitee'").run(b.id));
+ await h.app.locals.schedulingJobs.tick();
+ const delivery=await db.withContext(()=>db.prepare('SELECT a.* FROM scheduling_email_attempts a JOIN scheduling_jobs j ON j.id=a.job_id WHERE j.booking_id=?').get(b.id));
+ assert.equal(delivery.outcome,'CONFIRMED_ACCEPTED');assert.equal(delivery.smtp_code,250);assert.equal(delivery.attempt_number,1);assert.ok(delivery.completed_at);assert.ok(!delivery.events_json.includes(body.credential));
+ const delivered=h.outbox.length;await h.app.locals.schedulingJobs.tick();assert.equal(h.outbox.length,delivered,'Completed mock delivery must not be sent twice');
+ h.advance(start-h.now()-14*60000);assert.equal((await guest.request(`scheduling/booking/${b.id}/code`,{credential:body.credential},{'X-Scheduling-Token':form})).status,200);const proof=await guest.request(`scheduling/booking/${b.id}/redeem`,{credential:body.credential,code:h.codes[0].code},{'X-Scheduling-Token':form});assert.equal(proof.status,200);guest.setCsrf(proof.body.csrfToken);
+ assert.equal((await guest.request(`scheduling/guest/meetings/${b.meetingId}/token`,{displayName:body.name})).status,202);const waiting=(await host.request(`meetings/${b.meetingId}/state`)).body.pending;assert.equal(waiting.length,1);assert.equal((await host.request(`meetings/${b.meetingId}/actions`,{action:'admit',target:waiting[0].accountId})).status,200);assert.equal((await guest.request(`scheduling/guest/meetings/${b.meetingId}/token`,{displayName:body.name})).status,200);
+ const id=host.id;await h.close();await db.close();db=await openPostgresDatabase(process.env,{migrate:true});h=await schedulingHarness({database:db});const stored=await db.withContext(()=>db.prepare('SELECT * FROM scheduling_bookings WHERE id=? AND host_id=?').get(b.id,id));assert.equal(stored.status,'confirmed');assert.equal(stored.manage_hash.length,64);assert.notEqual(stored.manage_hash,body.credential);
+ const persisted=await db.withContext(()=>db.prepare('SELECT outcome,message_id FROM scheduling_email_attempts WHERE id=?').get(delivery.id));assert.equal(persisted.outcome,'CONFIRMED_ACCEPTED');assert.equal(persisted.message_id,delivery.message_id);
+});

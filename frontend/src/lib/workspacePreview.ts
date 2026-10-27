@@ -27,13 +27,3 @@ export function exitWorkspacePreview() {
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
-export function readSavedDemo() {
-  try {
-    const value = JSON.parse(sessionStorage.getItem('talk-booking') || 'null');
-    if (typeof value?.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value.date) || typeof value.time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.time)) return null;
-    const start = new Date(`${value.date}T${value.time}:00+05:30`);
-    const calendarDate = new Date(`${value.date}T12:00:00+05:30`);
-    if (!Number.isFinite(start.getTime()) || !Number.isFinite(calendarDate.getTime()) || calendarDate.toISOString().slice(0, 10) !== value.date) return null;
-    return { date: value.date, time: value.time, start };
-  } catch { return null; }
-}

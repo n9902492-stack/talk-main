@@ -6,6 +6,9 @@
 @import "./styles/account-chooser.css";
 @import "./styles/signin-confirmation.css";
 @import "./styles/mobile-refinements.css";
+@import "./styles/button-shadows.css";
+@import "./styles/workspace-reference.css";
+@import "./styles/application-theme.css";
 
 @layer base {
   body {

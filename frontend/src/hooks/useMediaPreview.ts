@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useBackgroundPreview } from './useBackgroundPreview';
+
 export function useMediaPreview() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -15,6 +17,7 @@ export function useMediaPreview() {
   const [level, setLevel] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const backgroundStatus = useBackgroundPreview(videoRef, stream, cameraOn);
   const release = () => {
     cancelAnimationFrame(frameRef.current);
     streamRef.current?.getTracks().forEach(track => track.stop());
@@ -29,7 +32,7 @@ export function useMediaPreview() {
     setBusy(true); setError('');
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error('Media devices are unavailable. Open this page on localhost in Chrome or Edge.');
-      const next = await navigator.mediaDevices.getUserMedia({ video: camera ? (nextCamera ? { deviceId: { exact: nextCamera } } : { width: { ideal: 1280 }, height: { ideal: 720 } }) : false, audio: microphone ? (nextMic ? { deviceId: { exact: nextMic } } : { echoCancellation: true, noiseSuppression: true }) : false });
+      const next = await navigator.mediaDevices.getUserMedia({ video: camera ? { ...(nextCamera ? { deviceId: { exact: nextCamera } } : {}), width: { ideal: 1280 }, height: { ideal: 720 } } : false, audio: microphone ? { ...(nextMic ? { deviceId: { exact: nextMic } } : {}), echoCancellation: true, noiseSuppression: true } : false });
       if (request !== requestRef.current) { next.getTracks().forEach(track => track.stop()); return; }
       release(); streamRef.current = next; setStream(next);
       setCameraOn(next.getVideoTracks().length > 0); setMicOn(next.getAudioTracks().length > 0);
@@ -67,5 +70,13 @@ export function useMediaPreview() {
     track.enabled = !track.enabled; setMicOn(track.enabled);
   };
   const stop = () => { requestRef.current++; release(); setStream(null); setCameraOn(false); setMicOn(false); setLevel(0); setBusy(false); };
-  return { videoRef, stream, devices, cameraId, micId, cameraOn, micOn, level, busy, error, enable, toggleCamera, toggleMic, stop };
+  const takeStream = () => {
+    requestRef.current++;
+    cancelAnimationFrame(frameRef.current);
+    void contextRef.current?.close().catch(() => {}); contextRef.current = null;
+    const value = streamRef.current;
+    streamRef.current = null;
+    return value;
+  };
+  return { videoRef, backgroundStatus, stream, devices, cameraId, micId, cameraOn, micOn, level, busy, error, enable, toggleCamera, toggleMic, stop, takeStream };
 }

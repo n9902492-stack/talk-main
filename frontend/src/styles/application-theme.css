@@ -1,0 +1,111 @@
+/* Shared scale from Overview / Meetings. Only application chrome is themed;
+   canvas object styles, participant media and semantic error colors stay intact. */
+:root {
+ --talk-font-body:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ --talk-font-heading:'Plus Jakarta Sans',Inter,sans-serif;
+ --talk-text:#171c24;--talk-muted:#667085;--talk-blue:#1679c4;--talk-blue-hover:#1168a9;
+ --talk-page:#f5f5f5;--talk-card:#fff;--talk-border:#e5eaf0;--talk-soft:#e8f1ff;
+ --talk-size-page:28px;--talk-size-section:18px;--talk-size-card:16px;
+ --talk-size-body:14px;--talk-size-control:13.5px;--talk-size-caption:12px;
+}
+body.talk-application {font-family:var(--talk-font-body);font-size:var(--talk-size-body);line-height:1.5;color:var(--talk-text);background:var(--talk-page);color-scheme:light}
+body.talk-application #root :is(button,input,select,textarea,summary) {font-family:var(--talk-font-body)}
+body.talk-application #root :is(button,a[class*='button'],input,select,textarea) {--talk-control-shadow:0 0 transparent!important;--talk-control-selection:inset 0 0 0 transparent!important}
+body.talk-application #root :is(h1,h2,h3,h4,h5,h6,.font-display) {font-family:var(--talk-font-heading);letter-spacing:-.025em}
+body.talk-application #root h1 {font-size:var(--talk-size-page);font-weight:700;line-height:1.25}
+body.talk-application #root h2 {font-size:var(--talk-size-section);font-weight:700;line-height:1.4}
+body.talk-application #root :is(h3,h4) {font-size:var(--talk-size-card);font-weight:600;line-height:1.5}
+body.talk-application #root p {font-size:var(--talk-size-body);line-height:1.6}
+body.talk-application #root :is(.primary-button,.secondary-button,.skin-button) {font:600 var(--talk-size-control)/1.5 var(--talk-font-body);border-radius:12px}
+body.talk-application #root :is(.primary-button,.skin-button) {background:var(--talk-blue);color:white;border-color:var(--talk-blue)}
+body.talk-application #root :is(.primary-button,.skin-button):hover {background:var(--talk-blue-hover)}
+body.talk-application #root .secondary-button {background:white;color:var(--talk-text);border-color:var(--talk-border)}
+body.talk-application #root .font-handwriting {font-family:var(--talk-font-body)}
+body.talk-application ::selection {background:#cfe2ff;color:#171c24}
+body.talk-application #root :is(.eyebrow,.signin-eyebrow) {color:var(--talk-blue);font-size:11px}
+/* One shell for all authenticated workspace destinations. */
+body.talk-application .has-workspace-sidebar .dashboard-main {background:var(--talk-page)}
+body.talk-application .has-workspace-sidebar :is(.dashboard-content,.meetings-hub-main,.scheduler>main,.talk-history) {width:100%;max-width:1440px;margin:0 auto;padding:28px 32px 40px}
+body.talk-application .has-workspace-sidebar .scheduler {display:block;min-height:100dvh;background:var(--talk-page);color:var(--talk-text);font:400 14px/1.5 var(--talk-font-body)}
+body.talk-application #root .dashboard-welcome h2,body.talk-application #root .signin-visual-copy h2 {font-size:28px;line-height:1.18}
+body.talk-application #root .dashboard-welcome .secondary-button {border-radius:999px}
+body.talk-application .has-workspace-sidebar .meetings-hub-heading-actions {flex-wrap:wrap;max-width:none}
+body.talk-application .has-workspace-sidebar .meetings-hub-heading-actions>* {width:auto}
+@container talk-dashboard (max-width:900px) {
+ .has-workspace-sidebar .meetings-hub-heading {flex-direction:column;align-items:flex-start}
+ .has-workspace-sidebar .meetings-hub-list.is-grid {grid-template-columns:1fr}
+ .has-workspace-sidebar .dashboard-lower-grid {grid-template-columns:minmax(0,1fr)}
+}
+/* Booking forms and public confirmation links use the same controls and cards. */
+body.talk-application :is(.scheduler,.booking-live) {color:var(--talk-text);font-family:var(--talk-font-body);font-size:14px}
+body.talk-application :is(.scheduler,.booking-live) :is(section,article,fieldset) {background:var(--talk-card);border-color:var(--talk-border);border-radius:16px}
+body.talk-application :is(.scheduler,.booking-live) :is(label,legend) {font-size:13.5px;color:var(--talk-text)}
+body.talk-application :is(.scheduler,.booking-live) :is(input:not([type=checkbox]),select,textarea) {font:400 14px/1.5 var(--talk-font-body);border-color:var(--talk-border);border-radius:12px;background:#fff;color:var(--talk-text);min-height:42px;padding:10px 12px}
+body.talk-application :is(.scheduler,.booking-live) :is(button,.booking-cta) {font:600 13.5px/1.5 var(--talk-font-body);background:var(--talk-blue);border-color:var(--talk-blue);color:white;min-height:40px}
+body.talk-application :is(.scheduler,.booking-live) :is(button.secondary,.booking-slots button) {background:white;color:var(--talk-blue);border-color:var(--talk-border)}
+body.talk-application :is(.scheduler,.booking-live) button[aria-pressed=true] {background:var(--talk-blue);color:white;border-color:var(--talk-blue)}
+body.talk-application .scheduler article a {color:var(--talk-blue);font-size:13.5px}
+body.talk-application :is(.scheduler-notice,.talk-transcript-status) {background:var(--talk-soft);color:var(--talk-muted)}
+/* Authentication, account selection and recording details retain their flows. */
+body.talk-application :is(.signin-page,.account-chooser-page,.confirmation-page) {background:var(--talk-page)}
+body.talk-application #root :is(.signin-card-description,.account-chooser-intro>p,.signin-form :is(input:not(.otp-digit),label),.signin-new-account) {font-size:14px}
+body.talk-application #root .signin-visual {background:linear-gradient(100deg,#1b81cb,#519bd0 55%,#88bfe2);color:white}
+body.talk-application #root .signin-visual-copy :is(h2,p),body.talk-application #root .signin-brand {color:white}
+body.talk-application #root .signin-visual .signin-brand {color:var(--talk-blue);background:white}
+body.talk-application #root .signin-visual .signin-eyebrow {color:white}
+body.talk-application #root .talk-history :is(.talk-history-tabs button,.talk-recording-list button,.talk-recording-actions a) {font:500 13.5px/1.5 var(--talk-font-body)}
+body.talk-application #root .talk-history-tabs button[aria-selected=true],body.talk-application #root .talk-recording-list button[aria-pressed=true] {background:var(--talk-soft);border-color:var(--talk-blue);color:var(--talk-blue)}
+/* Device test / pre-join match the light workspace instead of the old gold UI. */
+body.talk-application .prejoin-studio {--color-on-surface:#171c24;--color-secondary:#667085;--color-outline-variant:#e5eaf0;--color-surface:#fff;--color-surface-container-lowest:#fff;--color-surface-container-low:#f5f5f5;--color-accent-soft:#e8f1ff;--color-deep-blue:#1679c4;--color-primary:#1679c4;--color-button:#1679c4;--color-on-button:#fff;--color-focus:#1679c4;background:var(--talk-page);color:var(--talk-text);color-scheme:light}
+body.talk-application .prejoin-studio :is(.prejoin-header,.prejoin-content,.device-settings,.prejoin-identity,.join-row) {background:#fff;color:var(--talk-text);border-color:var(--talk-border)}
+body.talk-application .prejoin-studio :is(.prejoin-brand,.device-setting>label,.device-settings h2,.join-row h3,.field-label) {color:var(--talk-text)}
+body.talk-application .prejoin-studio :is(.prejoin-brand>span,.device-heading .eyebrow,.prejoin-settings-heading>span,.camera-under button) {color:var(--talk-blue)}
+body.talk-application .prejoin-studio :is(.prejoin-security,.prejoin-preview-label) {background:var(--talk-soft);border-color:#cfe2ff;color:var(--talk-blue)}
+body.talk-application .prejoin-studio :is(.prejoin-header .back-link,.device-heading>p,.camera-under,.device-setting>p) {color:var(--talk-muted)}
+body.talk-application .prejoin-studio .camera-preview {background:#f5f8fc;border-color:var(--talk-border)}
+body.talk-application .prejoin-studio .camera-placeholder {background:radial-gradient(ellipse,#e8f1ff,#f5f8fc)}
+body.talk-application .prejoin-studio .camera-placeholder :is(h3,p) {color:var(--talk-text)}
+body.talk-application .prejoin-studio .preview-avatar {color:var(--talk-blue);background:#fff;border-color:#8ac1e5;box-shadow:0 0 0 8px #1679c409}
+body.talk-application .prejoin-studio :is(.preview-name,.camera-controls) {background:#ffffffed;border-color:var(--talk-border);color:var(--talk-text)}
+body.talk-application .prejoin-studio .preview-name>span {color:var(--talk-muted)}
+body.talk-application .prejoin-studio .camera-controls button {background:#fff1f2;color:#b91c1c}
+body.talk-application .prejoin-studio .camera-controls button[aria-pressed=true] {background:var(--talk-soft);color:var(--talk-blue)}
+body.talk-application .prejoin-studio :is(select,.form-input) {background:white;color:var(--talk-text);border-color:var(--talk-border)}
+body.talk-application .prejoin-studio .audio-meter .lit {background:var(--talk-blue)}
+body.talk-application .prejoin-studio .prejoin-settings-heading>span {background:var(--talk-soft);color:var(--talk-blue)}
+body.talk-application .prejoin-studio .device-setting {border-color:var(--talk-border)}
+body.talk-application .prejoin-studio :is(.join-row p,.preview-name>span,.prejoin-meeting-title>span) {color:var(--talk-muted)}
+body.talk-application .prejoin-studio .device-setting label>span {color:var(--talk-muted);background:var(--talk-page)}
+body.talk-application .prejoin-studio .device-setting>button.text-primary {color:var(--talk-blue)}
+body.talk-application .prejoin-studio .talk-prejoin-recording {background:white;border-color:var(--talk-border);color:var(--talk-text)}
+body.talk-application .prejoin-studio .talk-prejoin-recording :is(h2,p) {color:var(--talk-text)}
+body.talk-application .prejoin-studio .talk-prejoin-recording .talk-recording-warning {background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+body.talk-application .prejoin-studio .talk-background-settings :is(h3,p,label,strong,.talk-blur-control,.talk-studio-option>span>span,.talk-effect-unavailable) {color:var(--talk-text)}
+body.talk-application .prejoin-studio .talk-prejoin-backgrounds>summary {color:var(--talk-text);border-color:var(--talk-border)}
+body.talk-application .prejoin-studio :is(.talk-background-grid button,.talk-settings-tabs button,.talk-effects-reset,.talk-studio-option) {background:white;border-color:var(--talk-border);color:var(--talk-text)}
+body.talk-application .prejoin-studio :is(.talk-background-grid button[aria-pressed=true],.talk-settings-tabs button[aria-pressed=true],.talk-studio-option:has(input:checked)) {background:var(--talk-soft);color:var(--talk-blue);border-color:var(--talk-blue)}
+body.talk-application .prejoin-studio .talk-background-settings :is(input,output) {accent-color:var(--talk-blue);color:var(--talk-blue)}
+body.talk-application .prejoin-studio :is(input,select,textarea,.talk-background-upload,.talk-studio-option):focus-within {outline-color:var(--talk-blue)}
+/* Call theme keeps intentional dark-mode contrast and red mute/leave states. */
+body.talk-application .meeting-studio.call-reference {--call-gold:#1679c4;--call-gold-soft:#e8f1ff;--call-bg:#f5f5f5;--call-text:#171c24;--call-muted:#667085;--call-border:#e5eaf0}
+body.talk-application .meeting-studio.call-reference.call-theme-dark {--call-gold:#8ac1e5;--call-gold-soft:#203b54;--call-bg:#191a1e;--call-text:#f0f1f3;--call-muted:#b7bbc5;--call-border:#3b3d45}
+body.talk-application .call-reference :is(.call-speaking-label,.call-theme-toggle button[aria-pressed=true],.call-people-count,.live-chat-message.is-local>p,.live-toolbar-tools>button[aria-label='Share screen']) {border-color:var(--call-gold)}
+body.talk-application .call-reference .live-participant-placeholder {background:radial-gradient(ellipse,#e8f1ff,#f5f8fc)}
+body.talk-application .call-reference.call-theme-dark .live-participant-placeholder {background:radial-gradient(ellipse,#34353c,#292a30)}
+body.talk-application .call-reference :is(.live-chat-message strong,.studio-side-tabs button) {font-size:13.5px}
+body.talk-application .call-reference .live-chat-compose textarea {font-size:14px}
+/* Only whiteboard toolbars / assistant chrome; never recolor canvas objects. */
+body.talk-application .talk-whiteboard {--wb-accent:#1679c4;color:var(--talk-text);border-color:var(--talk-border);background:white}
+body.talk-application .talk-whiteboard :is(.wb-header,.wb-toolbar,.wb-assistant,.wb-provider-options>summary) {background:white;color:var(--talk-text);border-color:var(--talk-border)}
+body.talk-application .talk-whiteboard :is(button,summary,select,textarea) {font:500 13.5px/1.5 var(--talk-font-body);border-color:var(--talk-border);color:var(--talk-text)}
+body.talk-application .talk-whiteboard :is(button[aria-pressed=true],.wb-header>button[aria-label='AI Assistant']) {background:var(--talk-soft);color:var(--talk-blue);border-color:#cfe2ff}
+body.talk-application .talk-whiteboard :is(.wb-assistant button.primary-button,.wb-assistant-footer button,.wb-assistant-generate) {background:var(--talk-blue);color:white;border-color:var(--talk-blue)}
+body.talk-application .talk-whiteboard .wb-assistant button.wb-assistant-primary {background:var(--talk-blue);color:white;border-color:var(--talk-blue)}
+body.talk-application .talk-whiteboard .wb-assistant button.wb-assistant-primary:hover {background:var(--talk-blue-hover)!important}
+body.talk-application .talk-whiteboard :is(.wb-heading>svg,.wb-export a) {color:var(--talk-blue)}
+body.talk-application .talk-whiteboard :is(button,summary):hover {background:var(--talk-soft);border-color:#cfe2ff}
+@media(max-width:767px) {
+ body.talk-application {--talk-size-page:24px}
+ body.talk-application .has-workspace-sidebar :is(.dashboard-content,.meetings-hub-main,.scheduler>main,.talk-history) {padding:24px 18px 32px}
+ body.talk-application #root .dashboard-welcome h2,body.talk-application #root .signin-visual-copy h2 {font-size:24px}
+}

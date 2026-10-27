@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { disableGoogleAutoSelect } from './googleIdentity';
 import { clearPendingPassword } from './browserPasswords';
+import type { AvatarSelection } from './avatars';
 
-export type AuthUser = { id: string; name: string; email: string; picture?: string; provider?: 'google' | 'email' | 'phone'; hasPassword?: boolean; emailVerified?: boolean; phoneNumber?: string; hasPhone?: boolean };
+export type AuthUser = { id: string; name: string; email: string; picture?: string; avatar?: AvatarSelection; provider?: 'google' | 'email' | 'phone'; hasPassword?: boolean; emailVerified?: boolean; phoneNumber?: string; hasPhone?: boolean };
 type AuthState = {
   user: AuthUser | null;
   status: 'loading' | 'ready' | 'error';
@@ -11,6 +12,8 @@ type AuthState = {
   confirmGoogleSignIn: () => Promise<void>;
   cancelGoogleSignIn: () => Promise<void>;
   refresh: () => Promise<void>;
+  updateAvatar: (value: AvatarSelection | File) => Promise<AvatarSelection>;
+  uploadBackground: (file: File) => Promise<{ version: string; imageUrl: string }>;
   signOut: () => Promise<void>;
 };
 const AuthContext = createContext<AuthState | null>(null);
@@ -104,7 +107,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.history.replaceState({}, '', '/choose-account');
     window.dispatchEvent(new PopStateEvent('popstate'));
   }, [signOut]);
-  return <AuthContext.Provider value={{ user, status, requiresConfirmation, completeSignIn, confirmGoogleSignIn, cancelGoogleSignIn, refresh, signOut }}>{children}</AuthContext.Provider>;
+  const updateAvatar = async (value: AvatarSelection | File) => {
+    const request = generation.current;
+    const upload = value instanceof File;
+    const response = await fetch(`/api/auth/profile/avatar${upload ? '/image' : ''}`, {
+      method: 'POST', credentials: 'same-origin', signal: AbortSignal.timeout(30000),
+      headers: { 'Content-Type': upload ? value.type : 'application/json', 'X-CSRF-Token': csrf.current },
+      body: upload ? value : JSON.stringify(value),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Could not update your avatar.');
+    if (request !== generation.current || result.user?.id !== user?.id || !result.user?.avatar) throw new Error('Your session changed. Please try again.');
+    // A profile update is not an auth change: do not disconnect the active meeting.
+    setUser(result.user); return result.user.avatar as AvatarSelection;
+  };
+  const uploadBackground = async (file: File) => {
+    const request = generation.current;
+    const response = await fetch('/api/auth/profile/background/image', { method: 'POST', credentials: 'same-origin', signal: AbortSignal.timeout(30000), headers: { 'Content-Type': file.type, 'X-CSRF-Token': csrf.current }, body: file });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Could not upload the background.');
+    if (request !== generation.current || !result.version) throw new Error('Your session changed. Please try again.');
+    return result as { version: string; imageUrl: string };
+  };
+  return <AuthContext.Provider value={{ user, status, requiresConfirmation, completeSignIn, confirmGoogleSignIn, cancelGoogleSignIn, refresh, signOut, updateAvatar, uploadBackground }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

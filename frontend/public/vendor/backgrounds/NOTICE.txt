@@ -1,0 +1,6 @@
+MediaPipe Tasks Vision 0.10.14 runtime: Copyright Google LLC, Apache License 2.0.
+Selfie Segmenter float16 v1: Google MediaPipe, Apache License 2.0.
+Model: https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite
+Model card: https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MediaPipe%20Selfie%20Segmentation.pdf
+Sources: https://github.com/google-ai-edge/mediapipe
+See LICENSE.txt for the Apache 2.0 license. No model modifications.

@@ -1,0 +1,219 @@
+/* Light collaborative workspace inspired by the supplied reference.
+   All canvas objects, collaborators, proposals and media remain live data. */
+.talk-whiteboard {
+  --wb-accent: #8b6c24;
+  color-scheme: light;
+  color: #292a2c; background: #fff;
+  border: 1px solid #e5e2dc; border-radius: 16px;
+  box-shadow: 0 6px 24px #37301e08;
+}
+.talk-whiteboard :is(button, a[class*="button"], summary) {
+  --talk-control-shadow: 0 0 transparent !important;
+  --talk-control-selection: inset 0 0 0 0 transparent !important;
+}
+.talk-whiteboard :is(button, select, summary) { color: #343432; border-color: #e0ded7; background: #fff; font-size: 12px; }
+.talk-whiteboard :is(button, summary):hover { background: #f7f4ea; border-color: #c5b57f; }
+.talk-whiteboard :is(button, select, summary, textarea):focus-visible { outline: 2px solid #98772b; outline-offset: 2px; }
+.talk-whiteboard .primary-button { background: #8b6c24; color: #fff; }
+.talk-whiteboard .wb-header { min-height: 50px; padding: 8px 16px; gap: 8px; border-bottom: 1px solid #eeece6; background: #fffefb; }
+.talk-whiteboard .wb-heading { gap: 8px; }
+.talk-whiteboard .wb-heading > svg { color: #8b6c24; width: 17px; }
+.talk-whiteboard .wb-heading h2 { color: #292a2c; font-size: 13px; }
+.talk-whiteboard .wb-heading span { color: #77756e; font-size: 10px; }
+.talk-whiteboard .wb-header > button[aria-label="AI Assistant"] { color: #80631f; background: #f5f0df; border-color: #e7ddbb; }
+.talk-whiteboard .wb-export > div { border-color: #e0ded7; box-shadow: 0 8px 24px #37301e18; }
+.talk-whiteboard .wb-export a { color: #80631f; }
+.talk-whiteboard .wb-export a:hover { background: #f7f4ea; }
+.talk-whiteboard .wb-body { position: relative; isolation: isolate; background: #fff; }
+.talk-whiteboard .wb-workspace { position: relative; padding-top: 76px; background-color: #fff; background-image: radial-gradient(#deded9 .8px, transparent .8px); background-size: 16px 16px; }
+.talk-whiteboard .wb-tools {
+  position: absolute; z-index: 6; top: 14px; left: 16px;
+  max-width: calc(100% - 32px); flex-direction: row; align-items: center; gap: 2px;
+  padding: 4px; border: 1px solid #e4e1d8; border-radius: 12px; background: #fffffff5;
+  box-shadow: 0 5px 16px #36301c16; overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin; scrollbar-color: #c6b98e #fff;
+}
+.talk-whiteboard[data-assistant-open="true"] .wb-tools { max-width: calc(100% - 354px); }
+.talk-whiteboard .wb-tools button { width: 38px; min-height: 44px; height: auto; flex-direction: column; gap: 4px; padding: 5px 1px; border: 1px solid transparent; border-radius: 7px; color: #343432; }
+.talk-whiteboard .wb-tools button > svg { width: 17px; height: 17px; }
+.talk-whiteboard .wb-tools button > span { font-size: 8px; line-height: 1.2; white-space: nowrap; }
+.talk-whiteboard .wb-tools button[aria-pressed="true"] { background: #f3edda; color: #6e571c; border-color: #e6d9ad; }
+.talk-whiteboard .wb-tools button[aria-label="Highlighter"] > svg { color: #c6a13d; fill: #f4df84; }
+.talk-whiteboard .wb-tools button[aria-label="Sticky note"] > svg { color: #d8bc48; fill: #ffeb95; }
+.talk-whiteboard .wb-properties { margin-left: 350px; height: 40px; min-height: 40px; flex: 0 0 40px; padding: 3px 12px; gap: 9px; border: 0; background: #ffffffd9; scrollbar-width: thin; overflow-y: hidden; }
+.talk-whiteboard .wb-properties > button { height: 24px; min-height: 24px; padding: 3px; }
+.talk-whiteboard .wb-properties label { color: #66645e; font-size: 10px; }
+.talk-whiteboard .wb-properties :is(select, input[type=color]) { background: #fff; border-color: #dfdcd2; }
+.talk-whiteboard .wb-properties input[type=range] { accent-color: #8b6c24; }
+.talk-whiteboard .wb-smart-tools { height: 30px; min-height: 30px; flex: 0 0 30px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding: 3px 16px; border: 0; background: #ffffffd9; color: #817d71; font-size: 10px; scrollbar-width: thin; }
+.talk-whiteboard .wb-smart-tools button { min-height: 22px; padding: 2px 5px; font-size: 10px; }
+.talk-whiteboard .wb-smart-tools > :is(label,button) { flex-shrink: 0; }
+.talk-whiteboard .wb-smart-tools label { color: #7c642d; }
+.talk-whiteboard .wb-smart-tools input { accent-color: #8b6c24; }
+.talk-whiteboard .wb-canvas-wrap { min-height: 240px; background-color: #fff; background-image: radial-gradient(#deded9 .8px, transparent .8px); background-size: 16px 16px; }
+.talk-whiteboard .wb-footer {
+  position: absolute; z-index: 6; top: 78px; left: 16px;
+  width: max-content; max-width: calc(100% - 32px); gap: 9px; padding: 3px 5px;
+  background: #fffffff5; border: 1px solid #e4e1d8; border-radius: 9px; box-shadow: 0 3px 10px #36301c13;
+}
+.talk-whiteboard .wb-footer > div:first-child { order: 1; border-left: 1px solid #e5e1d7; padding-left: 6px; }
+.talk-whiteboard .wb-footer button { min-height: 28px; min-width: 25px; padding: 4px; border: 0; font-size: 10px; }
+.talk-whiteboard .wb-footer small { display: none; }
+.talk-whiteboard .wb-footer output { width: 38px; font-size: 10px; }
+.talk-whiteboard .wb-assistant { width: 320px; flex-basis: 320px; border-left: 1px solid #e5e2dc; background: #fffefb; padding: 16px; gap: 12px; font-size: 12px; }
+.talk-whiteboard .wb-assistant header { position: sticky; top: 0; z-index: 3; padding-bottom: 10px; border-bottom: 1px solid #ece8df; background: #fffefb; }
+.talk-whiteboard .wb-assistant header strong { color: #272725; font-size: 14px; font-weight: 600; }
+.talk-whiteboard .wb-assistant header svg { color: #ac8b35; }
+.talk-whiteboard .wb-assistant header > button { border: 0; min-height: 28px; padding: 4px; }
+.talk-whiteboard .wb-assistant-intro { color: #747168; font-size: 11px; }
+.talk-whiteboard .wb-model-status { color: #756131; font-size: 10px; line-height: 1.5; }
+.talk-whiteboard .wb-model-status > span { display: block; color: #817b6d; font-size: 10px; }
+.talk-whiteboard .wb-provider-options { border-top: 1px solid #e7e2d5; padding-top: 10px; }
+.talk-whiteboard .wb-provider-options > summary { display: flex; justify-content: space-between; width: 100%; padding: 8px 10px; color: #746442; background: #f8f6ee; }
+.talk-whiteboard .wb-provider-options > summary::after { content: '+'; font-size: 16px; }
+.talk-whiteboard .wb-provider-options[open] > summary::after { content: '−'; }
+.talk-whiteboard .wb-provider-options > :not(summary) { margin-top: 12px; }
+.talk-whiteboard .wb-assistant textarea { min-height: 60px; }
+.talk-whiteboard .wb-assistant nav { flex-wrap: wrap; gap: 5px; }
+.talk-whiteboard .wb-assistant nav button { flex: 1 1 60px; font-size: 11px; }
+.talk-whiteboard .wb-assistant nav button[aria-pressed=true] { background: #f4eedc; border-color: #cdbb83; color: #70561b; }
+.talk-whiteboard .wb-assistant :is(select, textarea) { color: #343432; background: #fff; border-color: #e0ded7; }
+.talk-whiteboard .wb-assistant textarea:focus { border-color: #a1843d; box-shadow: 0 0 0 3px #a1843d14; }
+.talk-whiteboard .wb-template-caption { margin-bottom: -4px; font-size: 11px; color: #625f56; }
+.talk-whiteboard .wb-prompt-examples { gap: 5px; }
+.talk-whiteboard .wb-prompt-examples button { flex: 1 1 60px; min-height: 30px; font-size: 10px; padding: 5px; background: #f8f7f2; }
+.talk-whiteboard .wb-prompt-examples svg { color: #a58636; flex-shrink: 0; }
+.talk-whiteboard :is(.wb-provider-status, .wb-source-scope, .wb-ocr-status, .wb-cloud) { background: #f7f5ef; border-color: #e7e2d5; }
+.talk-whiteboard :is(.wb-provider-status, .wb-source-scope, .wb-ocr-status, .wb-cloud) p { color: #777267; font-size: 11px; }
+.talk-whiteboard .wb-assistant small { color: #787469; }
+.talk-whiteboard .wb-assistant-check input, .talk-whiteboard .wb-settings input { accent-color: #8b6c24; }
+.talk-whiteboard .wb-assistant .wb-assistant-primary { color: #fff; border-color: #8b6c24; background: #8b6c24; box-shadow: none; border-radius: 8px; }
+.talk-whiteboard .wb-assistant .wb-assistant-primary:hover { background: #725719 !important; }
+.talk-whiteboard .wb-proposal-preview { background: #fff; border-color: #e4dfd2; }
+.talk-whiteboard .wb-job { border-color: #e7e2d5; }
+.talk-whiteboard .wb-job-state strong, .talk-whiteboard .wb-analysis-section h4 { color: #80631f; }
+.talk-whiteboard .wb-analysis-section article { background: #fff; border-color: #e7e2d5; }
+.talk-whiteboard .wb-assistant .wb-source { color: #80631f; border-color: #e4dfd2; }
+.talk-whiteboard .wb-assistant-actions a, .talk-whiteboard .wb-action-review summary { color: #80631f; }
+.talk-whiteboard :is(.wb-settings, .wb-text-editor) { background: #fffefb; border-color: #dcd5c5; color: #343432; box-shadow: 0 10px 36px #3d321e26; }
+.talk-whiteboard .wb-empty { color: #777267; }
+.talk-whiteboard .wb-empty h3 { color: #343432; }
+
+/* Only the active whiteboard changes the meeting shell. Closing it restores
+   the existing charcoal video meeting without replacing any media tracks. */
+.meeting-studio.is-whiteboarding { background: #f8f6ef; padding: 8px 12px 10px; }
+.meeting-studio.is-whiteboarding .room-header { background: #f8f6ef; border-radius: 0; min-height: 50px; padding: 8px 12px; }
+.meeting-studio.is-whiteboarding .room-brand { color: #252525; font-size: 20px; border-color: #e1ddd2; }
+.meeting-studio.is-whiteboarding .room-title strong { color: #514e45; font-size: 14px; }
+.meeting-studio.is-whiteboarding .live-meeting-summary { color: #787367; }
+.meeting-studio.is-whiteboarding .live-meeting-summary time, .meeting-studio.is-whiteboarding .studio-layout-toggle { color: #6e685a; background: #ede9de; border-color: #ddd5c4; }
+.meeting-studio.is-whiteboarding .live-meeting-status { color: #7e652c; background: #eee7d3; }
+.meeting-studio.is-whiteboarding .live-meeting-main { padding: 0 2px; background: transparent; overflow: auto; }
+.meeting-studio.is-whiteboarding .live-meeting-stage.wb-stage { gap: 0; padding: 0; position: relative; background: #fff; border-radius: 16px; overflow: hidden; }
+.meeting-studio.is-whiteboarding .wb-stage > .talk-whiteboard { flex: 1; height: 100%; min-height: 0; width: 100%; }
+.meeting-studio.is-whiteboarding .wb-stage > .studio-fullscreen { top: auto; bottom: 14px; right: 14px; background: #fff; color: #756131; border-color: #e2dccd; }
+.meeting-studio.is-whiteboarding .wb-video-strip { display: block; position: absolute; left: 16px; bottom: 14px; z-index: 8; width: min(320px, 44%); height: 96px; min-height: 0; padding: 6px; border: 1px solid #44413b; border-radius: 13px; background: #242424; box-shadow: 0 4px 16px #29231d33; }
+.meeting-studio.is-whiteboarding .wb-video-strip > .live-meeting-canvas { height: 82px; min-height: 0; padding: 0; }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-meeting-grid { display: flex !important; height: 82px !important; gap: 6px; padding: 0; align-content: start; overflow-x: auto; }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-participant-tile { min-height: 78px !important; max-height: 82px; flex: 0 0 94px; border-radius: 8px; }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-participant-placeholder > .talk-avatar { width: 34px !important; height: 34px !important; font-size: 14px !important; }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-participant-placeholder { gap: 0; padding: 0; }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-participant-placeholder p, .meeting-studio.is-whiteboarding .wb-video-strip .studio-tile-muted, .meeting-studio.is-whiteboarding .wb-video-strip .live-tile-pin { display: none; }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-participant-name { bottom: 3px; left: 3px; padding: 3px 4px; gap: 3px; font-size: 8px; max-width: calc(100% - 6px); }
+.meeting-studio.is-whiteboarding .wb-video-strip .live-participant-name svg { width: 9px; height: 9px; }
+.meeting-studio.is-whiteboarding .live-meeting-controls { justify-content: center; width: min(720px, calc(100% - 20px)); margin: 10px auto 0; min-height: 72px; padding: 10px 12px; border: 1px solid #e3ded2; border-radius: 40px; background: #fff; box-shadow: 0 4px 16px #35301f12; }
+.meeting-studio.is-whiteboarding .room-device-controls button.off { background: #fbe7e8; color: #bb3b46; }
+.meeting-studio.is-whiteboarding .live-toolbar-tools > button.is-selected { background: #f0e5c7; border-color: #cab77b; color: #795c1b; }
+.meeting-studio.is-whiteboarding .live-toolbar-tools { flex: 0 1 auto; }
+.meeting-studio.is-whiteboarding .live-meeting-controls > .leave-button { width: 44px; min-height: 44px; height: 44px; padding: 10px; border-radius: 50%; }
+.meeting-studio.is-whiteboarding .live-meeting-controls > .leave-button > span { display: none; }
+.meeting-studio.is-whiteboarding .live-meeting-controls > .leave-button > svg { display: block; }
+.meeting-studio.is-whiteboarding .studio-session-footer { padding: 6px 4px 0; }
+.meeting-studio.is-whiteboarding .studio-session-title { color: #6a6458; font-size: 12px; }
+.meeting-studio.is-whiteboarding .studio-session-actions > button { color: #6a6458; background: #eee9dc; min-height: 32px; padding: 6px 10px; }
+@media (max-width: 1099px) {
+  .talk-whiteboard[data-assistant-open="true"] .wb-tools { max-width: calc(100% - 32px); }
+  .talk-whiteboard .wb-assistant { position: absolute; top: 0; bottom: 0; right: 0; width: min(340px, 100%); box-shadow: -12px 0 32px #42351e20; }
+  .talk-whiteboard .wb-properties { margin-left: 0; }
+  .talk-whiteboard .wb-workspace { padding-top: 116px; }
+}
+@media (max-width: 700px) {
+  .meeting-studio.is-whiteboarding { padding: 6px; }
+  .meeting-studio.is-whiteboarding .room-header { min-height: 76px; }
+  .meeting-studio.is-whiteboarding .room-title strong { font-size: 12px; }
+  .meeting-studio.is-whiteboarding .live-meeting-main { overflow: auto; }
+  .meeting-studio.is-whiteboarding .wb-stage > .talk-whiteboard { min-height: 580px; }
+  .meeting-studio.is-whiteboarding .wb-video-strip { width: 190px; height: 70px; left: 10px; bottom: 10px; }
+  .meeting-studio.is-whiteboarding .wb-video-strip > .live-meeting-canvas, .meeting-studio.is-whiteboarding .wb-video-strip .live-meeting-grid { height: 56px !important; }
+  .meeting-studio.is-whiteboarding .wb-video-strip .live-participant-tile { flex-basis: 76px; min-height: 52px !important; max-height: 56px; }
+  .meeting-studio.is-whiteboarding .live-meeting-controls { width: calc(100% - 12px); margin-top: 8px; padding: 8px; min-height: 68px; }
+  .talk-whiteboard .wb-header { gap: 6px; padding: 8px 10px; }
+  .talk-whiteboard .wb-heading { min-width: 100%; }
+  .talk-whiteboard .wb-heading h2 { max-width: 280px; }
+  .talk-whiteboard .wb-header > button > span { display: inline; }
+  .talk-whiteboard .wb-tools { left: 10px; top: 12px; max-width: calc(100% - 20px); }
+  .talk-whiteboard[data-assistant-open="true"] .wb-tools { max-width: calc(100% - 20px); }
+  .talk-whiteboard .wb-tools button { min-width: 45px; min-height: 48px; }
+  .talk-whiteboard .wb-footer { left: 10px; gap: 3px; max-width: calc(100% - 20px); }
+  .talk-whiteboard .wb-footer > div { gap: 2px; }
+  .talk-whiteboard .wb-footer button { min-width: 23px; }
+  .talk-whiteboard .wb-footer button > span { display: none; }
+  .talk-whiteboard .wb-canvas-wrap { min-height: 270px; }
+  .talk-whiteboard .wb-assistant { padding: 14px; }
+  .talk-whiteboard .wb-properties { gap: 8px; }
+}
+
+/* The call footer uses labeled split buttons now. Keep its intrinsic icon
+   sizes and a shared baseline instead of the former icon-only square sizes. */
+.meeting-studio.call-reference.is-whiteboarding { padding: 0; }
+.meeting-studio.call-reference.is-whiteboarding .live-meeting-controls {
+  box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+  gap: 8px; height: 72px; min-height: 72px; padding: 10px 12px; margin-top: 0;
+  container-type: inline-size;
+}
+.meeting-studio.call-reference.is-whiteboarding .call-audio-output { width: 104px; flex: 0 0 auto; }
+.meeting-studio.call-reference.is-whiteboarding .room-device-controls { gap: 8px; flex: 0 0 auto; }
+.meeting-studio.call-reference.is-whiteboarding .call-device-group { box-sizing: border-box; height: 50px; flex: 0 0 auto; }
+.meeting-studio.call-reference.is-whiteboarding .room-device-controls .call-device-group > button {
+  box-sizing: border-box; width: 56px; min-width: 56px; height: 48px; min-height: 48px;
+  padding: 6px 8px; gap: 4px; flex: 0 0 auto;
+}
+.meeting-studio.call-reference.is-whiteboarding .room-device-controls .call-device-group > .call-device-chevron {
+  width: 24px; min-width: 24px; height: 34px; min-height: 34px; margin: 7px 0; padding: 0;
+}
+.meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools {
+  flex: 0 0 auto; gap: 6px; padding: 0; overflow: visible;
+}
+.meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > button {
+  box-sizing: border-box; width: auto; min-width: 60px; max-width: none;
+  height: 50px; min-height: 50px; padding: 6px 10px; gap: 4px; flex: 0 0 auto;
+}
+.meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > button:is([aria-label='Share screen'],[aria-label='Stop sharing']) { min-width: 96px; }
+.meeting-studio.call-reference.is-whiteboarding :is(.room-device-controls,.live-toolbar-tools) button > svg {
+  width: 18px; height: 18px; flex: 0 0 auto;
+}
+.meeting-studio.call-reference.is-whiteboarding .room-device-controls .call-device-chevron > svg { width: 12px; height: 12px; }
+.meeting-studio.call-reference.is-whiteboarding :is(.room-device-controls,.live-toolbar-tools) button > span { font-size: 11px; line-height: 12px; white-space: nowrap; }
+.meeting-studio.call-reference.is-whiteboarding .live-meeting-controls > .leave-button {
+  position: static; margin: 0; width: 44px; min-width: 44px; height: 44px; min-height: 44px; flex: 0 0 auto;
+}
+@container (max-width: 660px) {
+  .meeting-studio.call-reference.is-whiteboarding .call-audio-output { display: none; }
+}
+@container (max-width: 540px) {
+  .meeting-studio.call-reference.is-whiteboarding .room-device-controls { gap: 4px; }
+  .meeting-studio.call-reference.is-whiteboarding .room-device-controls .call-device-group > button { width: 40px; min-width: 40px; padding: 6px 4px; gap: 3px; }
+  .meeting-studio.call-reference.is-whiteboarding .room-device-controls .call-device-group > .call-device-chevron { display: none; }
+  .meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools { gap: 4px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > button { width: 40px; min-width: 40px; padding-inline: 5px; gap: 3px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > button:is([aria-label='Raise hand'],[aria-label='Lower hand']) { width: 44px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > button:is([aria-label='Share screen'],[aria-label='Stop sharing']) { width: 60px; min-width: 60px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > .call-captions { display: none; }
+  .meeting-studio.call-reference.is-whiteboarding :is(.room-device-controls,.live-toolbar-tools) button > span { font-size: 9px; line-height: 11px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-toolbar-tools > button:is([aria-label='Raise hand'],[aria-label='Lower hand']) > span { white-space: normal; }
+}
+@media (max-width: 700px) {
+  .meeting-studio.call-reference.is-whiteboarding { grid-template-rows: 56px minmax(0,1fr) 72px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-meeting-controls { gap: 4px; padding-inline: 6px; }
+  .meeting-studio.call-reference.is-whiteboarding .live-meeting-controls > .leave-button { width: 40px; min-width: 40px; height: 40px; min-height: 40px; }
+}

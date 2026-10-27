@@ -1,0 +1,11 @@
+.scheduler .calendar-integration{scroll-margin-top:24px}
+.calendar-integration>header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.calendar-integration>header h2{margin:0 0 4px;font-size:20px}.calendar-integration>header p{margin:0}
+.calendar-integration-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#e6f2ff;color:#1681ce;flex:none}
+.calendar-state{display:inline-flex;align-items:center;gap:6px;margin-left:auto;padding:6px 10px;border-radius:30px;background:#eff6ff;color:#176ca6;font-size:13px;text-transform:capitalize}
+.calendar-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}.calendar-actions button,.calendar-actions a{display:inline-flex;align-items:center;justify-content:center;gap:7px;max-width:100%;overflow-wrap:anywhere}
+.calendar-integration fieldset{border:1px solid #dde5ef;border-radius:12px;margin:20px 0 12px;padding:14px 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.calendar-integration legend{padding:0 5px;font-weight:600}.scheduler .calendar-integration fieldset label{display:flex;align-items:center;gap:9px;margin:0;font-size:14px}.scheduler .calendar-integration input[type=checkbox]{width:16px;height:16px;margin:0;flex:none}
+.calendar-help,.calendar-setup{font-size:13px;color:#65748a;line-height:1.6}.calendar-setup{background:#f0f7ff;padding:12px;border-radius:10px}
+.calendar-booking{margin-top:16px;border-top:1px solid #e3e9f1;padding-top:12px}.calendar-booking summary{display:flex;align-items:center;gap:8px;cursor:pointer;color:#137cc1;font-weight:600}.calendar-booking p{font-size:14px}.calendar-conflict{padding:12px;border-radius:10px;background:#fff7e7;margin-top:10px}.calendar-conflict button{margin-right:8px}
+@media(max-width:640px){.calendar-integration fieldset{grid-template-columns:1fr}.calendar-state{margin-left:0}.calendar-actions{align-items:stretch}.calendar-actions button{width:100%}.calendar-integration>header h2{font-size:18px}}

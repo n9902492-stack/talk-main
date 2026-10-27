@@ -1,0 +1,61 @@
+.scheduler section.scheduling-calendar {padding:22px;min-width:0;overflow:hidden}
+.scheduler-page-header {display:flex;align-items:center;justify-content:space-between;gap:20px}
+.scheduler-page-header>div {min-width:0}
+.scheduler .booking-calendar-launcher {display:inline-flex;align-items:center;gap:8px;margin:0 0 0 auto;white-space:nowrap;flex-shrink:0}
+.booking-calendar-dialog {position:fixed;inset:16px 16px 16px auto;width:min(1180px,calc(100vw - 32px));max-width:calc(100vw - 32px);height:calc(100dvh - 32px);max-height:calc(100dvh - 32px);margin:0;padding:0;border:1px solid #dfe7f1;border-radius:20px;background:#fff;color:#202124;font:inherit;overflow:auto;overscroll-behavior:contain;box-shadow:0 24px 80px #14283d33}
+.booking-calendar-dialog::backdrop {background:#182b4866}
+body.talk-application .scheduler .booking-calendar-dialog>section.scheduling-calendar {margin:0;padding:24px;border:0;border-radius:0}
+.scheduling-calendar-heading-actions {display:flex;align-items:center;gap:8px;flex-shrink:0}
+.scheduler .scheduling-calendar-heading-actions>button {margin:0}
+.scheduler .scheduling-calendar-heading-actions .booking-calendar-close {min-width:40px;min-height:40px;padding:8px;line-height:1}
+.scheduling-calendar-heading,.scheduling-calendar-selection>header {display:flex;align-items:center;justify-content:space-between;gap:12px}
+.scheduling-calendar-heading h2 {display:flex;align-items:center;gap:8px;margin:0}
+.scheduler .scheduling-calendar-heading p {margin:5px 0 14px}
+.scheduling-calendar-controls,.scheduling-calendar-dates,.scheduling-calendar-options {display:flex;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.scheduling-calendar-controls {justify-content:space-between;margin:8px 0 16px}
+.scheduler .scheduling-calendar-controls label {margin:0;gap:5px;font-size:12px;color:#667085}
+.scheduler .scheduling-calendar-controls button {margin:0;min-height:42px;padding:9px 12px}
+.scheduler .scheduling-calendar-controls :is(input,select) {padding:9px;min-height:42px;max-width:240px}
+.scheduling-calendar-legend {display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px;margin-bottom:16px;color:#667085;font-size:12px}
+.scheduling-calendar-legend>span,.scheduler .scheduling-calendar-legend label {display:flex;align-items:center;gap:6px;margin:0;font-size:12px}
+.scheduling-calendar-legend input {width:auto}
+.scheduling-calendar-legend i {display:inline-block;width:14px;height:12px;border-radius:3px}
+.scheduling-calendar-legend .is-booked {background:#d6e9ff;border:1px solid #a6ccfa}
+.scheduling-calendar-legend .is-available {border:1px dashed #1679c4;background:#fff}
+.scheduling-calendar-scroll {max-height:610px;overflow:auto;border:1px solid #e5eaf0;border-radius:12px;position:relative;background:#fff;overscroll-behavior:contain}
+.scheduling-calendar-scroll:focus-visible {outline:2px solid #1679c4;outline-offset:2px}
+.scheduling-calendar-grid {display:grid;grid-template-columns:64px repeat(var(--calendar-days),minmax(180px,1fr));min-width:calc(64px + var(--calendar-days) * 180px)}
+.scheduling-calendar-zone,.scheduling-calendar-day-heading {position:sticky;top:0;z-index:3;min-height:54px;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px;background:#fff;border-bottom:1px solid #dce6f2;font-size:13px;font-weight:600;color:#1679c4}
+.scheduling-calendar-zone {left:0;z-index:5;flex-direction:column;font-size:9px;color:#667085;overflow:hidden}
+.scheduling-calendar-zone span {max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.scheduling-calendar-day-heading {border-left:1px solid #e5eaf0}
+.scheduling-calendar-day-heading.is-today {background:#e8f1ff}
+.scheduling-calendar-hours {position:sticky;left:0;z-index:2;background:#fff;border-right:1px solid #dce6f2}
+.scheduling-calendar-hours>span {position:absolute;right:8px;font-size:11px;color:#667085;line-height:18px}
+.scheduling-calendar-day {position:relative;border-right:1px solid #dce6f2;background:repeating-linear-gradient(to bottom,#dbe7f4 0,#dbe7f4 1px,transparent 1px,transparent 35px,#f1f4f8 35px,#f1f4f8 36px,transparent 36px,transparent 72px)}
+body.talk-application .scheduler .scheduling-calendar-day .scheduling-calendar-block {position:absolute;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;gap:2px;min-width:0;min-height:0;margin:0;padding:3px 6px;overflow:hidden;text-align:left;border:1px solid #a6ccfa;border-left:4px solid #1679c4;border-radius:6px;background:#d6e9ff;color:#21456c;font-size:12px;line-height:1.2;box-shadow:none}
+.scheduling-calendar-block strong,.scheduling-calendar-block>span {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scheduling-calendar-block strong {font-weight:600}
+.scheduling-calendar-block>span {font-size:10px}
+body.talk-application .scheduler .scheduling-calendar-day .is-available {border:2px dashed #75aafa;background:#ffffffd9;color:#1679c4;align-items:center;text-align:center}
+body.talk-application .scheduler .scheduling-calendar-day .booking-colour-1.is-booking {background:#efe4f9;border-color:#d1b4e6;border-left-color:#a676ca;color:#674d7e}
+body.talk-application .scheduler .scheduling-calendar-day .booking-colour-2.is-booking {background:#fff6dc;border-color:#ebd699;border-left-color:#d6ad3d;color:#776029}
+body.talk-application .scheduler .scheduling-calendar-day .booking-colour-3.is-booking {background:#ffe9ee;border-color:#efb7c5;border-left-color:#de6c89;color:#844c5e}
+body.talk-application .scheduler .scheduling-calendar-day .scheduling-calendar-block:hover {filter:brightness(.97);outline:1px solid #1679c4}
+.scheduler .scheduling-calendar-status,.scheduler .scheduling-calendar-footnote {font-size:12px;color:#667085}
+.scheduling-calendar-selection {border:1px solid #cfe2ff;border-radius:12px;padding:16px;background:#f7faff;margin-top:16px}
+.scheduling-calendar-selection>header h3 {margin:0}
+.scheduler .scheduling-calendar-selection>header button {margin:0;padding:7px}
+.scheduling-calendar-selection ul {display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto;list-style:none;padding:0;margin:12px 0}
+.scheduling-calendar-selection li {padding:6px 9px;border:1px solid #dce6f2;border-radius:8px;background:white;font-size:12px}
+.scheduling-calendar-selection a {display:inline-flex;color:#1679c4;text-decoration:underline;font-weight:600}
+@media(max-width:767px) {.scheduler section.scheduling-calendar {padding:16px}.scheduling-calendar-heading {align-items:flex-start;flex-direction:column}.scheduling-calendar-controls {align-items:stretch;flex-direction:column}.scheduling-calendar-options {align-items:stretch}.scheduling-calendar-options>label {flex:1;min-width:0}.scheduler .scheduling-calendar-controls select {max-width:100%}.scheduling-calendar-scroll {max-height:480px}}
+@media(max-width:767px) {
+ .scheduler-page-header {align-items:flex-start;flex-wrap:wrap;gap:8px}
+ .scheduler .booking-calendar-launcher {margin:0 0 4px auto}
+ .booking-calendar-dialog {inset:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+ body.talk-application .scheduler .booking-calendar-dialog>section.scheduling-calendar {padding:18px}
+ .booking-calendar-dialog .scheduling-calendar-heading {flex-direction:row;align-items:flex-start;flex-wrap:wrap}
+ .booking-calendar-dialog .scheduling-calendar-heading>div:first-child {flex:1;min-width:180px}
+ .booking-calendar-dialog .scheduling-calendar-heading-actions {margin-left:auto}
+}

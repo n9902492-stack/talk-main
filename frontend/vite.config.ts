@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
           secureCookies: appUrl.protocol === 'https:',
         });
         server.middlewares.use(auth);
+        if (server.httpServer) auth.locals.attachMeetingGateway(server.httpServer);
         server.httpServer?.once('close', () => auth.locals.closeAuthDatabase());
       },
     }],

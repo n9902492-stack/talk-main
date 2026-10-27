@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import sharp from 'sharp';
+import { expect } from '@playwright/test';
+import { meetingHarness, connected, count, openPanel, panel, stats } from './helpers/live-meeting.mjs';
+
+const h=await meetingHarness();
+try{
+  const alice=await h.member('AvatarAlice'),bob=await h.member('AvatarBob',660);
+  const profile=await alice.context.newPage();await profile.goto(h.origin+'/dashboard');
+  await profile.getByRole('button',{name:'Open account menu'}).click();await profile.getByRole('button',{name:'Profile settings',exact:true}).click();
+  const dialog=profile.getByRole('dialog');await expect(dialog).toBeVisible();
+  await dialog.getByRole('button',{name:'River · Cartoon',exact:true}).click();await dialog.getByRole('button',{name:'Save avatar',exact:true}).click();
+  await expect(dialog.getByRole('status')).toContainText('Avatar saved');await dialog.getByRole('button',{name:'Close profile settings'}).click();await profile.reload();
+  await expect(profile.locator('.dashboard-account-button [data-avatar-preset="talk-2"]')).toBeVisible();
+  await h.join(alice.page,'Alice',true);await h.join(bob.page,'Bob',true);await count(alice.page,2);await count(bob.page,2);
+  await bob.page.emulateMedia({reducedMotion:'no-preference'});
+  await expect.poll(async()=>{const s=await stats(bob.page);return s.frames>0&&s.audioPackets>0;},{timeout:20000}).toBe(true);
+  await alice.page.getByRole('button',{name:'Turn camera off',exact:true}).click();
+  const aliceTile=bob.page.locator('.live-participant-tile').filter({has:bob.page.locator('.live-participant-name strong',{hasText:'Alice'})});
+  await expect(aliceTile.locator('[data-avatar-preset="talk-2"]')).toBeVisible();
+  await openPanel(alice.page,'Settings');await panel(alice.page).getByRole('button',{name:'Professional',exact:true}).click();
+  await panel(alice.page).getByRole('button',{name:'Ocean · Professional',exact:true}).click();await panel(alice.page).getByRole('button',{name:'Save avatar',exact:true}).click();
+  await expect(aliceTile.locator('[data-avatar-preset="talk-7"]')).toBeVisible({timeout:15000});await connected(alice.page);await connected(bob.page);
+  await panel(alice.page).getByRole('button',{name:'3D style',exact:true}).click();await panel(alice.page).getByRole('button',{name:'Sky · 3D style',exact:true}).click();
+  await panel(alice.page).getByRole('button',{name:'Save avatar',exact:true}).click();await expect(aliceTile.locator('[data-avatar-preset="talk-9"]')).toBeVisible({timeout:15000});
+  const upload=await sharp({create:{width:180,height:180,channels:3,background:'#ff573d'}}).png().toBuffer();
+  await panel(alice.page).getByLabel('Upload profile picture').setInputFiles({name:'original-test.png',mimeType:'image/png',buffer:upload});
+  await expect(panel(alice.page).getByAltText('Selected upload preview')).toBeVisible();await panel(alice.page).getByRole('button',{name:'Save avatar',exact:true}).click();
+  await expect(aliceTile.locator('[data-avatar-kind="upload"] img')).toBeVisible({timeout:15000});
+  assert.equal(await aliceTile.locator('[data-avatar-kind="upload"] img').evaluate(img=>img.complete&&img.naturalWidth>0),true);
+  await panel(alice.page).getByLabel('Upload profile picture').setInputFiles({name:'invalid.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg/>')});await expect(panel(alice.page).getByRole('alert')).toContainText('JPEG');
+  await panel(alice.page).getByRole('button',{name:'Close meeting panel'}).click();
+  await openPanel(alice.page,'Reactions');await expect(panel(alice.page).getByRole('button',{name:/^React /})).toHaveCount(24);
+  await panel(alice.page).getByRole('button',{name:'Appreciation',exact:true}).click();await panel(alice.page).getByLabel('Search reactions').fill('thanks');
+  await expect(panel(alice.page).getByRole('button',{name:/^React /})).toHaveCount(1);
+  await panel(alice.page).getByRole('button',{name:'React 🙏',exact:true}).click();
+  await expect(aliceTile.getByRole('img',{name:'Alice tile reaction 🙏',exact:true})).toBeVisible({timeout:15000});
+  assert.equal(await aliceTile.locator('.live-tile-reaction').evaluate(element=>getComputedStyle(element).animationName),'talk-reaction-pop');
+  await expect(bob.page.getByRole('img',{name:'Alice reacted 🙏',exact:true})).toBeVisible();
+  await panel(alice.page).getByLabel('Search reactions').fill('');await expect(panel(alice.page).getByRole('heading',{name:'Recently used'})).toBeVisible();
+  await panel(alice.page).getByRole('button',{name:'All',exact:true}).click();
+  await alice.page.screenshot({path:'artifacts/qa/reactions-avatars-desktop.png'});
+  await expect(aliceTile.getByRole('img',{name:'Alice tile reaction 🙏',exact:true})).toHaveCount(0,{timeout:12000});
+  // Trusted backend enforces the rate even if someone bypasses the picker.
+  let limited=false;
+  for(let i=0;i<7;i++){const response=await h.api(alice.context,'reaction',undefined,{emoji:'🚀'});if(response.status()===429){limited=true;break;}assert.equal(response.status(),200);}
+  assert.equal(limited,true);
+  await panel(alice.page).getByRole('button',{name:'Close meeting panel'}).click();
+  await alice.page.setViewportSize({width:390,height:844});await openPanel(alice.page,'Reactions');await expect(panel(alice.page)).toHaveAttribute('role','dialog');
+  await expect(panel(alice.page).getByRole('heading',{name:'Recently used'})).toBeVisible();
+  assert.equal(await alice.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await alice.page.screenshot({path:'artifacts/qa/reactions-avatars-mobile.png'});
+  await panel(alice.page).getByRole('button',{name:'Close meeting panel'}).click();
+  await openPanel(alice.page,'Settings');await expect(panel(alice.page).getByRole('img',{name:'AvatarAlice avatar'})).toBeVisible();
+  await alice.page.screenshot({path:'artifacts/qa/avatar-settings-mobile.png'});
+  await panel(alice.page).getByRole('button',{name:'Close meeting panel'}).click();
+  await alice.page.getByRole('button',{name:'Enable camera',exact:true}).click();await expect(aliceTile.locator('video')).not.toHaveClass(/is-hidden/);
+  await connected(alice.page);await connected(bob.page);
+  assert.deepEqual(h.errors,[]);
+  await fs.writeFile('artifacts/qa/reactions-avatars-results.json',JSON.stringify({passed:true,twoRealBrowsers:true,realLiveKitReactionSync:true,realAvatarSync:true,uploadedAvatarDecodedRemotely:true,authProvider:'isolated test identity fixture',media:'generated test camera and microphone transported over actual local LiveKit',rateLimitEnforced:true,mobile:true},null,2));
+  console.log('PASS: real two-browser LiveKit reactions, tile expiry, avatars, profile persistence, uploads, camera controls and mobile panels. Authentication uses isolated test identities; no SMS, email or cloud deployment.');
+}finally{await h.close();}

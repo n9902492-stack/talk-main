@@ -30,6 +30,8 @@
 .dashboard-account-menu > strong { display: block; overflow-wrap: anywhere; font-size: 12px; font-weight: 600; line-height: 1.6; }.dashboard-account-menu > p { margin: 9px 0 14px; overflow-wrap: anywhere; color: var(--color-secondary); font-size: 11px; line-height: 1.6; }.dashboard-account-menu > button { display: flex; align-items: center; gap: 8px; width: 100%; padding-top: 14px; border-top: 1px solid var(--color-outline-variant); font-size: 12px; }
 .dashboard-content { max-width: 1440px; margin-inline: auto; padding: 32px 36px 20px; }
 .dashboard-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.dashboard-page-heading > div { min-width: 0; }
+.dashboard-page-heading h1 { overflow-wrap: anywhere; }
 .dashboard-page-heading h1 { font-size: 30px; line-height: 1.25; font-weight: 600; letter-spacing: -.035em; }.dashboard-page-heading p { margin-top: 10px; color: var(--color-secondary); font-size: 13px; }.dashboard-page-heading .primary-button { flex-shrink: 0; border-radius: 9999px; font-size: 12px; padding: 12px 18px; }
 .dashboard-preview-note { margin-top: 18px; color: var(--color-secondary); font-size: 11px; line-height: 1.6; }
 .dashboard-welcome { position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding: 28px 34px; min-height: 232px; border-radius: 22px; color: var(--color-white); background: linear-gradient(110deg, var(--color-deep-blue), var(--color-primary) 75%, var(--color-glow)); }

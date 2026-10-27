@@ -1,0 +1,130 @@
+/* The pre-join studio shares Talk's light shell and the meeting's navy canvas. */
+.prejoin-studio {
+  min-height: 100dvh;
+  width: 100%;
+  color: var(--color-on-surface);
+  background: linear-gradient(150deg, var(--color-surface-container-lowest) 40%, var(--color-accent-soft));
+}
+.prejoin-studio .prejoin-header {
+  min-height: 76px;
+  padding: 16px clamp(20px, 3vw, 48px);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+}
+.prejoin-studio .prejoin-brand { display: inline-flex; align-items: center; gap: 11px; font-size: 25px; font-weight: 750; letter-spacing: -.045em; flex-shrink: 0; }
+.prejoin-studio .prejoin-brand > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; color: #fff; background: linear-gradient(140deg, var(--color-light-blue, #8ac1e5), var(--color-deep-blue, #0877c9)); box-shadow: 0 5px 14px #0877c925; }
+.prejoin-studio .prejoin-meeting-title { display: flex; flex-direction: column; gap: 4px; padding-left: 24px; border-left: 1px solid var(--color-outline-variant); min-width: 0; }
+.prejoin-studio .prejoin-meeting-title strong { font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.prejoin-studio .prejoin-meeting-title > span { font-size: 11px; color: var(--color-secondary); }
+.prejoin-studio .prejoin-security { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; padding: 9px 13px; border: 1px solid var(--color-outline-variant); border-radius: 999px; font-size: 11px; color: var(--color-deep-blue, #0877c9); white-space: nowrap; }
+.prejoin-studio .prejoin-header .back-link { margin: 0; font-size: 11px; white-space: nowrap; }
+.prejoin-studio .prejoin-content { width: min(1440px, 100%); padding: 24px clamp(20px, 3vw, 48px) 30px; margin: auto; }
+.prejoin-studio .device-heading { display: flex; justify-content: space-between; align-items: end; gap: 28px; margin: 0 0 22px; }
+.prejoin-studio .device-heading .eyebrow { font-size: 9px; letter-spacing: .13em; }
+.prejoin-studio .device-heading h1 { font-size: clamp(25px, 2.2vw, 34px); margin: 5px 0 0; letter-spacing: -.045em; line-height: 1.25; }
+.prejoin-studio .device-heading > p { max-width: 285px; font-size: 12px; line-height: 1.7; text-align: right; }
+.prejoin-studio .device-grid { grid-template-columns: minmax(0, 1fr) minmax(310px, 360px); gap: 26px; align-items: start; }
+.prejoin-studio .prejoin-preview-column { min-width: 0; }
+.prejoin-studio .camera-preview { width: 100%; min-width: 0; max-width: 100%; aspect-ratio: 16 / 10; min-height: 300px; max-height: 540px; border: 1px solid #2c4567; border-radius: 26px; background: radial-gradient(ellipse at 48% 40%, #172b50, #0c172c 76%); box-shadow: 0 15px 35px #152f4d15; }
+.prejoin-studio .camera-preview video { display: block; }
+.prejoin-studio .prejoin-preview-label { position: absolute; top: 20px; left: 20px; display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid #7798c42e; border-radius: 999px; color: #d3e3fa; background: #0d192eaa; backdrop-filter: blur(8px); font-size: 10px; }
+.prejoin-studio .camera-placeholder { padding: 60px 24px 100px; }
+.prejoin-studio .camera-placeholder .preview-avatar { position: relative; width: 112px; height: 112px; margin-bottom: 23px; border: 2px solid #5b9fce; background: linear-gradient(140deg, #23334a, #131d30); box-shadow: 0 0 30px #0877c955; color: #fff; font-size: 45px; font-weight: 600; }
+.prejoin-studio .prejoin-avatar-status { position: absolute; right: 0; bottom: 3px; width: 27px; height: 27px; display: grid; place-items: center; border: 2px solid #0f1c33; border-radius: 50%; color: #fff; background: #b43c52; }
+.prejoin-studio .camera-placeholder .prejoin-avatar-status svg { width: 15px; height: 15px; }
+.prejoin-studio .camera-placeholder h3 { margin-bottom: 9px; font-size: 17px; font-weight: 600; color: #f1f5ff; }
+.prejoin-studio .camera-placeholder p { color: #9eafca; font-size: 12px; text-align: center; line-height: 1.5; }
+.prejoin-studio .preview-name { max-width: calc(50% - 85px); bottom: 21px; left: 20px; padding: 10px 13px; border: 1px solid #6c94cb38; background: #0b182bd9; border-radius: 12px; color: #eef5ff; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prejoin-studio .preview-name > span { margin-top: 3px; color: #9eafca; font-size: 10px; }
+.prejoin-studio .camera-controls { gap: 8px; bottom: 20px; padding: 7px; border: 1px solid #698db540; border-radius: 19px; background: #0b182bdf; box-shadow: 0 5px 16px #0003; backdrop-filter: blur(12px); }
+.prejoin-studio .camera-controls button { width: 45px; height: 45px; border-radius: 12px; color: #ffb1bd; background: #27354b; transition: background .15s, color .15s; }
+.prejoin-studio .camera-controls button:hover { background: #344a67; }
+.prejoin-studio .camera-controls button[aria-pressed=true] { background: #dceeff; color: #075993; }
+.prejoin-studio .camera-controls button:focus-visible { outline: 2px solid #8ac1e5; outline-offset: 3px; }
+.prejoin-studio .camera-under { padding: 14px 2px; font-size: 10px; line-height: 1.5; }
+.prejoin-studio .camera-under svg { flex-shrink: 0; color: var(--color-deep-blue, #0877c9); }
+.prejoin-studio .camera-under button { font-size: 10px; padding: 4px 0 4px 12px; white-space: nowrap; }
+.prejoin-studio .camera-under button:disabled { opacity: .4; cursor: default; }
+.prejoin-studio .prejoin-identity { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; padding: 14px 18px; border: 1px solid var(--color-outline-variant); border-radius: 16px; background: var(--color-surface-container-lowest); }
+.prejoin-studio .prejoin-identity .field-label { margin: 0; display: inline-flex; align-items: center; gap: 8px; font-size: 11px; }
+.prejoin-studio .prejoin-identity .form-input { font-size: 13px; padding: 11px 13px; background: var(--color-surface-container-low); }
+.prejoin-studio .join-row { margin-top: 14px; padding: 18px 20px; border: 1px solid var(--color-outline-variant); border-radius: 18px; background: var(--color-surface-container-lowest); box-shadow: 0 8px 22px #17365808; }
+.prejoin-studio .join-row h3 { font-size: 12px; line-height: 1.5; }
+.prejoin-studio .join-row p { font-size: 10px; line-height: 1.5; }
+.prejoin-studio .join-row .primary-button { min-height: 45px; flex-shrink: 0; border-radius: 12px; padding: 12px 20px; font-size: 12px; }
+.prejoin-studio .prejoin-join-error { margin: 15px 0; font-size: 12px; line-height: 1.7; }
+.prejoin-studio .device-settings { min-width: 0; padding: 22px; border-radius: 22px; border-color: var(--color-outline-variant); background: var(--color-surface-container-lowest); box-shadow: 0 10px 28px #17365808; }
+.prejoin-studio .prejoin-settings-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.prejoin-studio .prejoin-settings-heading > span { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--color-deep-blue, #0877c9); background: var(--color-accent-soft); }
+.prejoin-studio .prejoin-settings-heading h2 { font-size: 14px; font-weight: 650; letter-spacing: -.025em; }
+.prejoin-studio .prejoin-enable { width: 100%; justify-content: center; gap: 8px; min-height: 44px; padding: 11px; margin-bottom: 22px; border-radius: 12px; font-size: 11px; }
+.prejoin-studio .device-setting { margin-bottom: 18px; padding-bottom: 18px; }
+.prejoin-studio .device-setting > label { font-size: 12px; margin-bottom: 9px; }
+.prejoin-studio .device-setting label > span { font-size: 9px; }
+.prejoin-studio .device-setting select { border-radius: 10px; font-size: 11px; padding: 11px; background: var(--color-surface-container-low); text-overflow: ellipsis; }
+.prejoin-studio .device-setting .text-secondary { color: var(--color-secondary); font-size: 10px; line-height: 1.65; }
+.prejoin-studio .audio-meter { height: 13px; gap: 3px; margin: 11px 0 8px; }
+.prejoin-studio .audio-meter span { border-radius: 3px; }
+.prejoin-studio .audio-meter span.lit { background: var(--color-deep-blue, #0877c9); }
+.prejoin-studio .talk-prejoin-backgrounds { margin: 0 0 18px; }
+.prejoin-studio .talk-prejoin-backgrounds > summary { font-size: 12px; padding: 12px; background: var(--color-accent-soft); }
+.prejoin-studio .prejoin-speaker .secondary-button, .prejoin-studio .prejoin-record-test .secondary-button { font-size: 11px; min-height: 40px; padding: 11px 9px; border-radius: 10px; }
+.prejoin-studio .prejoin-speaker > button.text-xs { font-size: 10px; margin-top: 10px; }
+.prejoin-studio .prejoin-record-test { margin-bottom: 0; padding-bottom: 0; border: 0; }
+.prejoin-studio .prejoin-device-error { margin: 0 0 18px; font-size: 11px; line-height: 1.65; }
+.prejoin-studio .talk-prejoin-recording { margin-bottom: 22px; }
+.prejoin-studio a:focus-visible, .prejoin-studio button:focus-visible, .prejoin-studio summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+@media (min-width: 1100px) and (min-height: 720px) {
+  .prejoin-studio .camera-preview { height: clamp(320px, calc(100dvh - 446px), 540px); aspect-ratio: auto; }
+  .prejoin-studio .device-settings { max-height: calc(100dvh - 222px); overflow-y: auto; scrollbar-gutter: stable; }
+}
+@media (max-width: 1000px) {
+  .prejoin-studio .prejoin-header { gap: 18px; }
+  .prejoin-studio .prejoin-security { display: none; }
+  .prejoin-studio .prejoin-header .back-link { margin-left: auto; }
+  .prejoin-studio .device-grid { grid-template-columns: minmax(0, 1fr) minmax(285px, 320px); gap: 20px; }
+  .prejoin-studio .device-settings { padding: 18px; }
+  .prejoin-studio .device-heading > p { max-width: 255px; }
+  .prejoin-studio .prejoin-identity { grid-template-columns: 1fr; gap: 9px; }
+  .prejoin-studio .join-row { flex-wrap: wrap; gap: 14px; }
+}
+@media (max-width: 760px) {
+  .prejoin-studio .prejoin-header { min-height: 68px; padding: 14px 20px; gap: 14px; flex-wrap: wrap; }
+  .prejoin-studio .prejoin-brand { font-size: 23px; gap: 9px; }
+  .prejoin-studio .prejoin-brand > span { width: 34px; height: 34px; border-radius: 11px; }
+  .prejoin-studio .prejoin-meeting-title { order: 3; width: 100%; padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--color-outline-variant); }
+  .prejoin-studio .prejoin-meeting-title > span { display: none; }
+  .prejoin-studio .prejoin-content { padding: 24px 20px; }
+  .prejoin-studio .device-heading { display: block; margin-bottom: 20px; }
+  .prejoin-studio .device-heading > p { max-width: none; text-align: left; margin-top: 10px; font-size: 11px; }
+  .prejoin-studio .device-grid { grid-template-columns: 1fr; gap: 22px; }
+  .prejoin-studio .camera-preview { aspect-ratio: 4 / 3; min-height: 290px; max-height: 460px; border-radius: 22px; }
+  .prejoin-studio .prejoin-preview-label { top: 15px; left: 15px; }
+  .prejoin-studio .camera-placeholder { padding: 60px 20px 95px; }
+  .prejoin-studio .camera-placeholder .preview-avatar { width: 85px; height: 85px; font-size: 35px; margin-bottom: 17px; }
+  .prejoin-studio .camera-placeholder h3 { font-size: 15px; }
+  .prejoin-studio .camera-placeholder p { font-size: 11px; }
+  .prejoin-studio .preview-name { left: 13px; bottom: 17px; padding: 8px 9px; max-width: calc(50% - 72px); font-size: 10px; }
+  .prejoin-studio .camera-controls { bottom: 15px; padding: 6px; border-radius: 17px; }
+  .prejoin-studio .camera-controls button { width: 40px; height: 40px; }
+  .prejoin-studio .camera-under { gap: 6px; font-size: 9px; }
+  .prejoin-studio .camera-under button { font-size: 9px; }
+  .prejoin-studio .prejoin-identity { padding: 15px; }
+  .prejoin-studio .join-row { flex-direction: row; align-items: center; padding: 18px; }
+  .prejoin-studio .join-row .primary-button { width: auto; margin-left: auto; }
+  .prejoin-studio .device-settings { padding: 22px; }
+}
+@media (max-width: 400px) {
+  .prejoin-studio .prejoin-header { padding-inline: 16px; }
+  .prejoin-studio .prejoin-content { padding-inline: 14px; }
+  .prejoin-studio .camera-under { flex-wrap: wrap; }
+  .prejoin-studio .camera-under button { margin-left: auto; }
+  .prejoin-studio .join-row .primary-button { width: 100%; justify-content: center; }
+  .prejoin-studio .preview-name { max-width: 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .prejoin-studio .camera-controls button { transition: none; }
+}

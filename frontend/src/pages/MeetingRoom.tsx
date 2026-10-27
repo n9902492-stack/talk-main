@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Mic, MicOff, Video, VideoOff, MonitorUp, Smile, MessageSquare, FileText, Users, Settings, PhoneOff, ChevronDown, LayoutGrid, Play, Pause, ListChecks, X, Send, Hand, Pencil, Maximize2 } from 'lucide-react';
 import { useMediaPreview } from '../hooks/useMediaPreview';
 import MeetingWhiteboard from '../components/MeetingWhiteboard';
 import { useEmbeddedParticipant } from '../hooks/useEmbeddedParticipant';
+
+const LiveMeeting = lazy(() => import('../components/LiveMeeting'));
 
 const agenda = [
   ['Introduction to Social Media Marketing', 'Overview of the importance and benefits of social media marketing.', '05:00'],
@@ -19,6 +21,10 @@ const transcript = [
 ];
 
 export default function MeetingRoom() {
+  return new URLSearchParams(window.location.search).get('live') === '1' ? <Suspense fallback={<main className="auth-session-status" role="status">Loading your Talk meeting…</main>}><LiveMeeting /></Suspense> : <MeetingPreview />;
+}
+
+function MeetingPreview() {
   const media = useMediaPreview();
   const name = sessionStorage.getItem('talk-name')?.trim() || 'You';
   const selfName = name === 'You' ? 'You' : `${name} (You)`;

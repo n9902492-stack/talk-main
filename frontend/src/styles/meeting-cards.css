@@ -1,0 +1,35 @@
+/* Quiet two-column cards: consistent content slots and bottom-aligned actions. */
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid {grid-auto-rows:1fr;align-items:stretch;gap:16px}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card {display:flex;flex-direction:column;container:meeting-card / inline-size;min-width:0;border-radius:16px;transition:border-color .15s,box-shadow .15s}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card:hover {border-color:#cfe2ff;box-shadow:0 4px 16px #1679c40a}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-main {padding:20px 20px 16px;flex:1}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-top {margin-bottom:16px}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-title {display:block;min-height:48px;margin:0 0 4px}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-title h3 {margin:0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-host-line {margin:0;color:#667085;overflow-wrap:anywhere}
+.meetings-hub-card-created {display:inline-flex;align-items:center;gap:5px;margin-top:5px;color:#667085;font:400 12px/1.5 Inter,sans-serif}
+.meetings-hub-card-created svg {flex-shrink:0}
+.meetings-hub.workspace-reference .meetings-hub-list.is-list .meetings-hub-card-created {display:none}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-resources {display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:32px;margin-top:12px}
+.meetings-hub.workspace-reference .meetings-hub-card-resources .has-content {display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:5px 8px;border-radius:8px;border-color:#e5eaf0;background:#f8fafc;color:#1679c4;font-size:12px}
+.meetings-hub-resources-empty {color:#667085;font:400 12px/1.5 Inter,sans-serif}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-bottom {display:flex;flex-direction:row;align-items:center;justify-content:space-between;margin:0 20px;padding:14px 0 18px;gap:12px;border-color:#e5eaf0}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-member-count {display:inline-flex;align-items:center;flex-shrink:0;gap:4px;min-height:28px;padding:4px 8px;font-size:12px;white-space:nowrap}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-actions {display:flex;flex-direction:row-reverse;align-items:center;gap:8px;flex:0 1 auto;width:auto;margin-left:auto}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-secondary-actions {display:flex;gap:8px;width:auto;flex-wrap:wrap}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-actions .meetings-hub-card-primary,
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-secondary-actions>:is(a,button) {display:inline-flex;justify-content:center;align-items:center;gap:6px;min-height:36px;padding:7px 10px;font-size:12px;line-height:1.5;border-radius:9px;white-space:nowrap}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-primary {background:#1679c4;color:#fff}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-primary:hover {background:#1168a9}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-secondary-actions>:is(a,button) {background:#f8fafc;color:#667085;border:1px solid #e5eaf0}
+.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-secondary-actions>:is(a,button):hover {background:#e8f1ff;color:#1679c4;border-color:#cfe2ff}
+@container meeting-card (max-width:460px) {
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-bottom {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-bottom .meetings-hub-card-actions {display:contents}
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-bottom .meetings-hub-member-count {justify-self:start;align-self:center;grid-row:1;grid-column:1}
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-bottom .meetings-hub-card-primary {grid-row:1;grid-column:2;align-self:center;margin:0}
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-bottom .meetings-hub-card-secondary-actions {grid-row:2;grid-column:1/-1;display:flex;width:100%;gap:8px}
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-secondary-actions:empty {display:none}
+ .meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card-secondary-actions>:is(a,button) {flex:1;min-height:40px;margin:0}
+}
+@media(prefers-reduced-motion:reduce) {.meetings-hub.workspace-reference .meetings-hub-list.is-grid .meetings-hub-card {transition:none}}

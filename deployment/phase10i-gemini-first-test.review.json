@@ -1,0 +1,110 @@
+{
+  "status": "VISUAL_SAFETY_EVIDENCE_RECONCILED_REVIEW_ONLY_MODEL_ACCESS_UNTESTED",
+  "executable": false,
+  "sendAuthorized": false,
+  "provider": "Google Gemini Developer API",
+  "adapter": "openai-compatible",
+  "model": "gemini-2.5-flash",
+  "method": "POST",
+  "destination": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer <REDACTED_GEMINI_API_KEY>",
+    "Content-Length": "2661"
+  },
+  "bodyFile": "deployment/phase10i-gemini-first-test.body.json",
+  "bodySha256": "15808093f5c7f539d721ac559b851ae91d41854083a4dd617fb5040e4c6805b9",
+  "bodyBytes": 2661,
+  "userPrompt": "Generate a SWOT analysis for a fictional video meeting application called OrbitMeet. Include strengths, weaknesses, opportunities and threats. Return structured data suitable for editable Konva shapes and sticky notes.",
+  "dataScope": "Synthetic prompt, fixed instructions/schema, and empty notes only",
+  "realTalkDataAllowed": false,
+  "project": {
+    "projectId": "gen-lang-client-0562383032",
+    "billingTier": "Free",
+    "billingTierEvidence": "Directly reviewed user-supplied AI Studio screenshot on 2026-10-22; visual evidence, not a live API check",
+    "keyProjectBindingVerified": true,
+    "paidFallbackAbsenceVerified": true,
+    "modelAccessVerified": false,
+    "quota": {
+      "source": "Directly reviewed rate-limit screenshot on 2026-10-22; the cropped quota image has no visible project ID, so its project association relies on the user-provided screenshot context",
+      "requestsPerMinute": 5,
+      "tokensPerMinute": 250000,
+      "requestsPerDay": 20,
+      "displayedRequestsUsed": 0,
+      "liveRemainingQuotaVerified": false
+    },
+    "billingTierVerified": true,
+    "billingDisabledVerified": true,
+    "keyProjectBindingEvidence": "Screenshot links named key Talk Whiteboard AI 2 to gen-lang-client-0562383032. Linkage of the private .env.local value to this named key relies on the user-reported full-key offline MATCH; not independently repeated in this review.",
+    "paidFallbackAbsenceEvidence": "Cloud Console screenshot shows billing disabled for the intended project; exact model/destination and existing no-fallback code remain unchanged. Scope is the displayed configuration, not a guarantee against later account changes."
+  },
+  "limits": {
+    "maxInferenceAttemptsLifetime": 1,
+    "automaticRetries": 0,
+    "redirects": "reject",
+    "fallback": "none",
+    "maxInputEstimate": 8192,
+    "maxOutputTokens": 2048,
+    "requestTimeoutMs": 45000,
+    "maxConcurrent": 1,
+    "currentApplicationPerUserPerHour": 1,
+    "currentApplicationPerMeetingPerHour": 1,
+    "lifetimeAttemptGuardImplemented": true,
+    "lifetimeAttemptGuardModule": "backend/src/whiteboard-cloud-first-test.mjs",
+    "lifetimeAttemptLedger": "data/whiteboard-cloud-first-test.sqlite",
+    "lifetimeAttemptReserved": false
+  },
+  "input": {
+    "roughEnglishTokenEstimate": 666,
+    "roughEstimateMethod": "Full JSON bytes divided by four; not a tokenizer count",
+    "applicationConservativeEstimate": 2917,
+    "providerTokenCountRequested": false
+  },
+  "cost": {
+    "maximumAuthorizedINR": 0,
+    "expectedCostINRIfEligibleFreeTier": 0,
+    "providerMaximumChargeVerified": false,
+    "applicationPriceEstimate": null,
+    "zeroCostConfigurationVisuallyVerified": true,
+    "note": "INR 0 expected for the visually verified unbilled Free-tier setup. No request was sent or billed; no unconditional future charge guarantee is inferred."
+  },
+  "disabled": {
+    "environmentEnabledFalse": true,
+    "environmentOperatorApprovedFalse": true,
+    "sourceReleaseApprovedFalse": true
+  },
+  "requirementsBeforeSend": [
+    "This turn authorizes review only: do not send; wait for a subsequent execution instruction",
+    "Use only the unchanged 2661-byte request, fixed project/model/destination and durable single-attempt guard",
+    "Keep normal Cloud AI disabled and all existing release/security controls intact; isolated execution remains to be wired without opening general inference",
+    "Accept that actual model/schema access remains untested and may fail; no access probes, retries or fallback are authorized",
+    "Any dispatched request or uncertain outcome consumes the attempt; no second inference without new approval"
+  ],
+  "documentationChecked": "2026-10-21",
+  "applicationConfigurationChanged": false,
+  "localEvidence": {
+    "intendedProjectCommentMatches": true,
+    "providerConfigured": true,
+    "modelMatches": true,
+    "flagsDisabled": true,
+    "gitIgnored": true,
+    "preparedBodyUnchanged": true,
+    "freeTierEvidence": "User assertion and local preparation metadata only; no authoritative key-to-project or billing record",
+    "modelRestrictionEvidence": "Official model page read in the previous preparation step on 2026-10-21; not fetched again",
+    "googleRequestsThisStep": 0
+  },
+  "visualEvidence": {
+    "reviewDate": "2026-10-22",
+    "aiStudioNamedKeyAndProjectMatch": true,
+    "aiStudioFreeTierShown": true,
+    "cloudConsoleSameProjectBillingDisabled": true,
+    "gemini25FlashDisplayedLimits": {
+      "requestsPerMinute": 5,
+      "tokensPerMinute": 250000,
+      "requestsPerDay": 20
+    },
+    "privateKeyValueNotDisplayedOrRecorded": true,
+    "fullLocalKeyNamedKeyLinkage": "User-reported MATCH, not independently repeated this turn",
+    "liveGoogleStateQueried": false
+  }
+}

@@ -53,11 +53,20 @@ const server = app.listen(port, process.env.HOST || (production ? '0.0.0.0' : '1
   console.log(`Talk is running at ${appUrl.origin}`);
   if (!process.env.GOOGLE_CLIENT_ID) console.log('Set GOOGLE_CLIENT_ID in .env.local to enable Google sign-in.');
 });
-server.once('close', () => auth.locals.closeAuthDatabase());
+auth.locals.attachMeetingGateway(server);
+let cleanup;
+const closeAuth = () => cleanup ||= Promise.resolve(auth.locals.closeAuthDatabase());
+server.once('close', () => { void closeAuth().catch(() => console.error('Talk shutdown cleanup did not finish.')); });
 let stopping = false;
-const shutdown = () => {
+const shutdown = async () => {
   if (stopping) return; stopping = true;
   server.close();
-  setTimeout(() => process.exit(1), 8000).unref();
+  server.closeIdleConnections();
+  // Close media sockets and flush capture before releasing the shared database.
+  // Transcription child processes receive cancellation rather than blocking exit.
+  const deadline = setTimeout(() => process.exit(1), 180000); deadline.unref();
+  try { await closeAuth(); }
+  catch { console.error('Talk shutdown cleanup did not finish.'); process.exitCode = 1; }
+  finally { clearTimeout(deadline); }
 };
 process.once('SIGTERM', shutdown); process.once('SIGINT', shutdown);

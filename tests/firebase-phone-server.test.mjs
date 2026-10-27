@@ -1,3 +1,4 @@
+import {sqliteMigrationCount} from './helpers/migration-count.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { once } from 'node:events';
@@ -319,7 +320,7 @@ test('phone sessions and identity associations survive database reopen', async (
   const reopened = await harness({ databasePath, jar });
   t.after(async () => { await reopened.close(); removeTestDirectory(directory); });
   assert.deepEqual((await reopened.request('session')).body, signed.body);
-  assert.equal(reopened.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n, 3);
+  assert.equal(reopened.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n,sqliteMigrationCount);
   assert.deepEqual(reopened.db.prepare('PRAGMA foreign_key_check').all(), []);
   await reopened.post('logout', {}, signed.body.csrfToken);
   assert.equal((await reopened.request('session')).body.user, null);

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Talk · One SMS test</title>
+  </head>
+  <body>
+    <main class="test-shell">
+      <article class="test-card" aria-labelledby="title">
+        <div class="brand" aria-label="Talk">Talk<span>SMS delivery test</span></div>
+        <span class="badge">Temporary test page</span>
+        <h1 id="title">Receive one real SMS.</h1>
+        <p class="intro">Check Firebase phone verification on your own Indian mobile number. This test does not sign you into Talk.</p>
+
+        <div id="status" class="status" role="status" aria-live="polite" aria-atomic="true">Preparing the secure test…</div>
+
+        <section id="request-section" aria-labelledby="number-title">
+          <h2 id="number-title">Your mobile number</h2>
+          <label class="field-label" for="phone">Indian mobile number</label>
+          <div class="phone-field">
+            <span class="country-code" aria-label="India country code plus ninety one">+91</span>
+            <input id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" pattern="[6-9][0-9]{9}" placeholder="10-digit mobile number" aria-describedby="phone-help" disabled />
+          </div>
+          <p id="phone-help" class="field-help">Use your own number, without +91. A number configured as a Firebase fictional test number will not receive an SMS.</p>
+
+          <label class="consent-label" for="consent">
+            <input id="consent" type="checkbox" disabled />
+            <span>I approve requesting one real SMS to this number. Google will receive and process my number for verification and abuse prevention. SMS charges may apply.</span>
+          </label>
+
+          <div id="recaptcha" class="recaptcha" aria-label="Complete the Google reCAPTCHA challenge"></div>
+          <button id="send" class="primary-button" type="button" disabled>Send ONE SMS</button>
+          <p class="field-help send-note">No automatic sending or resending. The browser locks this test after one request, including a failed request.</p>
+        </section>
+
+        <section id="verification-section" aria-labelledby="code-title" hidden>
+          <h2 id="code-title">Enter your SMS code</h2>
+          <label class="field-label" for="code">6-digit verification code</label>
+          <input id="code" class="code-field" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" aria-describedby="code-help" disabled />
+          <p id="code-help" class="field-help">Enter the code received on your phone. This page allows up to five verification attempts and cannot resend the SMS.</p>
+          <button id="verify" class="primary-button" type="button" disabled>Verify OTP</button>
+        </section>
+
+        <div class="security-note">
+          <p>This one-request limit applies only to this browser and test release. It is not a project-wide SMS spending limit. Other browsers or clearing site storage can bypass it.</p>
+          <p>Successful verification can create a Firebase Authentication phone user. No Talk account, Talk session, or dashboard access is created. The temporary Firebase session is cleared immediately.</p>
+        </div>
+      </article>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

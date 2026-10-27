@@ -57,7 +57,12 @@ export async function openPostgresDatabase(env, { migrate = false } = {}) {
   pool.on('error', () => { /* Never emit credential-bearing driver messages. Health checks report availability. */ });
   try {
     if (migrate) await migratePostgres(pool);
-    const required = ['accounts', 'identities', 'sessions', 'google_challenges', 'email_challenges', 'phone_profiles', 'phone_challenges', 'phone_token_uses', 'rate_limits'];
+    const required = ['accounts', 'identities', 'sessions', 'google_challenges', 'email_challenges', 'phone_profiles', 'phone_challenges', 'phone_token_uses', 'rate_limits', 'talk_meetings', 'talk_meeting_members', 'talk_meeting_connections', 'talk_meeting_events', 'account_avatars', 'account_backgrounds'];
+    required.push('password_reset_challenges');
+    required.push('talk_whiteboard_ai_jobs','talk_whiteboard_ai_approvals','talk_whiteboard_ai_usage');
+    required.push('talk_recordings','talk_recording_consents','talk_recording_events','talk_recording_jobs','talk_transcript_segments');
+    required.push('talk_transcript_revisions','talk_ai_consents','talk_ai_reports','talk_ai_report_sources','talk_ai_report_revisions','talk_ai_jobs','talk_ai_events');
+    required.push('talk_whiteboards','talk_whiteboard_permissions','talk_whiteboard_operations','talk_whiteboard_snapshots','talk_whiteboard_images','talk_whiteboard_events','talk_whiteboard_versions');
     for (const table of required) await pool.query(`SELECT 1 FROM ${table} LIMIT 0`);
     return asyncDatabase({ kind: 'postgres', pool, parameterize });
   } catch { await pool.end(); throw new Error('Authentication database is unavailable or migrations are missing. Details withheld.'); }

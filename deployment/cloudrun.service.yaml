@@ -9,13 +9,15 @@ spec:
   template:
     metadata:
       annotations:
-        autoscaling.knative.dev/maxScale: "2"
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "1"
+        run.googleapis.com/cpu-throttling: "true"
         run.googleapis.com/cloudsql-instances: talk-fc3dc:asia-south1:talk-auth-db
         run.googleapis.com/execution-environment: gen2
     spec:
       serviceAccountName: talk-auth-runtime@talk-fc3dc.iam.gserviceaccount.com
       containerConcurrency: 20
-      timeoutSeconds: 60
+      timeoutSeconds: 3600
       containers:
         - image: asia-south1-docker.pkg.dev/talk-fc3dc/talk/talk-auth:RELEASE_TAG
           ports:
@@ -40,6 +42,15 @@ spec:
             - { name: PGDATABASE, value: talk_auth }
             - { name: PGUSER, value: talk_auth }
             - { name: PGPOOL_MAX, value: "5" }
+            # Deliberately invalid placeholders: meetings stay unavailable until
+            # the approved LiveKit service and this Cloud Run URL are verified.
+            # LIVEKIT_URL example: wss://PROJECT.livekit.cloud
+            - { name: LIVEKIT_URL, value: "REPLACE_WITH_APPROVED_LIVEKIT_WSS_ORIGIN" }
+            # Direct Cloud Run WSS, never the Firebase Hosting HTTP rewrite.
+            # Example: wss://SERVICE-HASH-REGION.run.app/api/auth/meeting-signal
+            - { name: MEETING_SIGNAL_URL, value: "REPLACE_WITH_APPROVED_CLOUD_RUN_WSS_URL" }
+            # The initial five-person/two-room deployment has no recording worker.
+            - { name: RECORDING_PROVIDER, value: disabled }
             - { name: FIREBASE_PROJECT_ID, value: talk-fc3dc }
             # Public identifier; replace from your existing Google Web Client.
             - { name: GOOGLE_CLIENT_ID, value: "125382244506-ihve90u4ale5obpf94p6oeb7vmjb9tgv.apps.googleusercontent.com" }
@@ -49,6 +60,10 @@ spec:
               valueFrom: { secretKeyRef: { name: talk-db-password, key: "1" } }
             - name: AUTH_COOKIE_SECRET
               valueFrom: { secretKeyRef: { name: talk-cookie-key, key: "1" } }
+            - name: LIVEKIT_API_KEY
+              valueFrom: { secretKeyRef: { name: talk-livekit-api-key, key: "1" } }
+            - name: LIVEKIT_API_SECRET
+              valueFrom: { secretKeyRef: { name: talk-livekit-api-secret, key: "1" } }
             - name: SMTP_USER
               valueFrom: { secretKeyRef: { name: talk-smtp-user, key: "1" } }
             - name: SMTP_PASSWORD

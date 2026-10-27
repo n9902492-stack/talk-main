@@ -6,6 +6,7 @@ export type GoogleAuthUser = { id: string; name: string; email: string; picture?
 type GoogleSignInProps = {
   onAuthenticated: (user: GoogleAuthUser, csrfToken: string, requiresConfirmation?: boolean) => void;
   showChooserLink?: boolean;
+  variant?: 'standard' | 'icon';
 };
 
 type GoogleConfig = { configured: boolean; clientId?: string; csrfToken?: string; nonce?: string };
@@ -45,7 +46,7 @@ function validUser(value: unknown): value is GoogleAuthUser {
     && (user.picture === undefined || typeof user.picture === 'string');
 }
 
-export default function GoogleSignIn({ onAuthenticated, showChooserLink = true }: GoogleSignInProps) {
+export default function GoogleSignIn({ onAuthenticated, showChooserLink = true, variant = 'standard' }: GoogleSignInProps) {
   const [status, setStatus] = useState<Status>('loading');
   const [message, setMessage] = useState('Loading secure Google sign-in…');
   const [attempt, setAttempt] = useState(0);
@@ -118,10 +119,10 @@ export default function GoogleSignIn({ onAuthenticated, showChooserLink = true }
         let renderedWidth = 0;
         const render = () => {
           if (!active || verifying || !root.current || !host.current) return false;
-          const width = Math.min(400, Math.floor(root.current.getBoundingClientRect().width));
+          const width = variant === 'icon' ? 40 : Math.min(400, Math.floor(root.current.getBoundingClientRect().width));
           if (width > 0 && width !== renderedWidth) {
             try {
-              identity.render(host.current, width);
+              identity.render(host.current, width, variant);
               renderedWidth = width;
             } catch {
               fail('Google sign-in could not display. Please try again.');
@@ -147,14 +148,14 @@ export default function GoogleSignIn({ onAuthenticated, showChooserLink = true }
       observer?.disconnect();
       disposeIdentity?.();
     };
-  }, [attempt]);
+  }, [attempt, variant]);
 
   useEffect(() => { if (host.current) host.current.inert = status === 'verifying'; }, [status]);
 
   const actualButton = status === 'ready' || status === 'verifying';
-  return <div className="google-signin" ref={root} aria-busy={status === 'loading' || status === 'verifying'}>
+  return <div className={`google-signin${variant === 'icon' ? ' google-signin-icon' : ''}`} ref={root} data-status={status} aria-busy={status === 'loading' || status === 'verifying'}>
     <div className={`google-signin-host${status === 'verifying' ? ' is-verifying' : ''}`} ref={host} hidden={!actualButton} />
-    {!actualButton && <button type="button" className="google-signin-placeholder" disabled><GoogleLogo /><span>Continue with Google</span></button>}
+    {!actualButton && <button type="button" className="google-signin-placeholder" disabled><GoogleLogo /><span className={variant === 'icon' ? 'sr-only' : undefined}>Continue with Google</span></button>}
     <p className={`google-signin-status${status === 'error' ? ' is-error' : ''}`} role={status === 'error' ? 'alert' : 'status'} aria-live="polite">{message}</p>
     {(status === 'error' || status === 'unconfigured') && <button type="button" className="google-signin-retry" onClick={() => setAttempt(value => value + 1)}>Retry Google sign-in</button>}
     {showChooserLink && <a href="/choose-account" className="google-account-chooser-link">Choose an account</a>}

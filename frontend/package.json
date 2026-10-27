@@ -14,7 +14,10 @@
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@livekit/track-processors": "0.8.2",
     "firebase": "12.9.0",
+    "konva": "10.9.0",
+    "livekit-client": "2.20.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
@@ -22,10 +25,10 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "@vitejs/plugin-react": "^6.1.1",
     "@types/node": "^22.14.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",

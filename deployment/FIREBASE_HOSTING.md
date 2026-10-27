@@ -1,6 +1,12 @@
 # Talk Firebase Hosting preparation
 
+For the current five-user/two-room scope and costs, start with [TEAM_TESTING.md](TEAM_TESTING.md). The historical SMS-only proposal below is retained as implementation history. No deployment is authorized by either document.
+
 Prepared locally on 15 October 2026. **Nothing has been deployed and no real SMS has been requested.** Website components and design are unchanged. SQLite remains the development store. Production now supports PostgreSQL with the same authentication APIs and a Hosting-compatible encrypted cookie.
+
+Start with [APPROVAL.md](APPROVAL.md) for the beginner sign-in step, read-only cloud inspection, proposed resources/costs and separate approval boundaries. `cloudsql.instance.json` is an unapplied database proposal. The Cloud Run template explicitly scales to zero with a two-instance maximum. These files do not create resources by themselves.
+
+After account sign-in, [LIVE_READINESS.md](LIVE_READINESS.md) records the 15 October read-only project inspection, confirmed Firebase settings, disabled deployment APIs and current pricing estimate. No deployment flags were marked complete.
 
 ## What was verified
 
@@ -13,7 +19,7 @@ Prepared locally on 15 October 2026. **Nothing has been deployed and no real SMS
 | Development fictional numbers | The existing opt-in loopback test mode is preserved |
 | Production build | Built locally into `frontend/dist`; private configuration markers checked |
 
-Phone Authentication enabled, India allowed, Blaze trial/billing and the displayed 1,000/day SMS quota are based on your Firebase console report. Public configuration endpoints do not expose all of those administrative settings. No privileged project configuration was changed. A reCAPTCHA site key being available does **not** prove a completed browser challenge or delivered SMS on the final HTTPS deployment.
+Authenticated inspection now confirms Phone Authentication enabled, India explicitly allowed, the Hosting domain authorized and linked billing enabled. The owner confirmed a current ₹28,797 credit balance in the console. Trial expiry and the previously reported 1,000/day Firebase product SMS cap remain unverified through these APIs; the generic API request quota must not be treated as an SMS allowance. No privileged project configuration was changed. A reCAPTCHA site key being available does **not** prove a completed browser challenge or delivered SMS on the final HTTPS deployment.
 
 ## Files and safe local commands
 
@@ -31,7 +37,7 @@ npm run hosting:inspect  # Read-only HTTPS GET checks; no deploy or OTP request
 npm run hosting:check    # Intentionally fails until the backend is ready
 ```
 
-The CLI and inspection scripts never invoke a deployment or request a verification code. `hosting:inspect` returns a nonzero status for the current missing site. Firebase/gcloud deployment-account access has not been checked. Local Docker was used only for isolated PostgreSQL tests and the backend image build. The final image built successfully and remains local; no registry push occurred. An offline image test also passed migrations, real startup, database health, encrypted challenge handling and persistence across an app restart. Image inspection confirmed non-root execution and absence of private environment files/user data.
+The inspection scripts never invoke a deployment or request a verification code. `hosting:inspect` returns a nonzero status for the current missing site. Google Cloud account sign-in and authenticated metadata access have now been checked; deployment permissions and disabled product services still need review/approval. Local Docker was used only for isolated PostgreSQL tests and the backend image build. The final image built successfully and remains local; no registry push occurred. An offline image test also passed migrations, real startup, database health, encrypted challenge handling and persistence across an app restart. Image inspection confirmed non-root execution and absence of private environment files/user data.
 
 ## Backend implementation and local verification
 
@@ -85,9 +91,11 @@ For the backend/Hosting order, the final Hosting predeploy gate remains blocked 
 
 ## Required before the first real SMS test
 
+Live meeting release also requires the Phase 3 PostgreSQL migration/runtime grants and a separately approved WebSocket-capable backend URL in `MEETING_SIGNAL_URL`; Hosting HTTP rewrites are not used as the signaling endpoint. This does not change Email OTP, Google or Firebase phone authentication. See [PHASE3_MEETINGS.md](PHASE3_MEETINGS.md). No deployment or SMS is authorized by these preparation steps.
+
 1. Approve deployment separately. Deploy the prepared frontend **and working authentication backend**, then confirm that the landing page, `/phone-sign-in` and authentication APIs work on HTTPS. Verify that normal reCAPTCHA renders there without a testing banner. Loading/solving reCAPTCHA does not itself send an SMS.
 2. Keep the fictional numbers for development. Ensure your personal `+91` number is **not** listed under Firebase's **Phone numbers for testing**. A console-configured test number still uses its fixed test code and receives no SMS, including in production. Remove only your personal number from that test list if necessary; retain the fictional numbers.
-3. Use the existing project settings you reported: Phone provider enabled, India allowed and active billing. The displayed daily SMS quota is a sending limit, **not** a guarantee of free messages. Review current [Firebase pricing](https://firebase.google.com/pricing) and your credits/billing before authorizing a send; no charge estimate was inferred from the quota.
+3. The Phone provider, India allowlisting and linked billing were verified live. Reconfirm the current Firebase product daily SMS cap in the console before a real send. That cap is a sending limit, **not** a guarantee of free messages. Review current [Firebase pricing](https://firebase.google.com/pricing) and your credits/billing before authorizing a send; no charge estimate was inferred from the quota.
 4. Explicitly approve **one real SMS request**. Only then enter your own number on the hosted phone page, accept consent, complete reCAPTCHA and choose **Send OTP**. Do not publish the number, received code or tokens in chat/logs. Enter the received code in the six boxes, verify, check the dashboard, refresh and sign out. Do not automatically resend; Talk's sixty-second cooldown and per-number/IP limits still apply.
 5. Confirm actual receipt and successful verification. The earlier real-Firebase fictional-number checks and current SDK-fixture tests do not prove real SMS delivery.
 

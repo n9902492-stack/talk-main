@@ -96,7 +96,7 @@ test('verified credential creates an opaque HttpOnly session, persists across re
   const credential = JSON.stringify(payload(challenge.nonce));
   const result = await h.google(challenge, credential);
   assert.equal(result.status, 200);
-  assert.deepEqual(result.body.user, { id: '1234567890', name: 'Talk Person', email: 'person@example.com', picture: 'https://lh3.googleusercontent.com/a/test-photo', provider: 'google', hasPassword: false, emailVerified: true, hasPhone: false });
+  assert.deepEqual(result.body.user, { id: '1234567890', name: 'Talk Person', email: 'person@example.com', avatar: { kind: 'initials' }, picture: 'https://lh3.googleusercontent.com/a/test-photo', provider: 'google', hasPassword: false, emailVerified: true, hasPhone: false });
   assert.equal(h.jar.has('talk_auth_challenge'), false);
   assert.match(h.jar.get('talk_session'), /^[A-Za-z0-9_-]{43}$/);
   const cookie = result.cookies.find((value) => value.startsWith('talk_session='));

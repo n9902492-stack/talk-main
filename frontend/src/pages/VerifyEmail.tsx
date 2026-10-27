@@ -25,6 +25,7 @@ export default function VerifyEmail() {
   const [locked, setLocked] = useState(false);
   const [action, setAction] = useState<'verify' | 'resend' | 'change'>('verify');
   const { pending, error, errorCode, retrySeconds, clearError, run } = useEmailAuthRequest();
+  const signInRequired = errorCode === 'account_action_unavailable';
 
   useEffect(() => {
     let active = true;
@@ -48,6 +49,11 @@ export default function VerifyEmail() {
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => { if (errorCode === 'attempt_limit') setLocked(true); }, [errorCode]);
+  useEffect(() => {
+    if (!signInRequired) return;
+    clearPendingPassword();
+    setDigits(Array(6).fill(''));
+  }, [signInRequired]);
   useEffect(() => {
     if (!verified) return;
     const timer = window.setTimeout(navigateToDashboard, 1200);
@@ -98,8 +104,12 @@ export default function VerifyEmail() {
     if (result) { setDigits(Array(6).fill('')); navigate(details?.purpose === 'link' ? '/dashboard' : '/sign-up'); }
   };
 
-  return <AuthLayout page="verify" title="Verify Your Email" description={details?.purpose === 'link' ? 'Confirm your email to securely add password sign-in.' : 'One last step before your Talk workspace.'} Icon={MailCheck} footer={<>Already verified? <a href="/sign-in">Sign in<ArrowRight size={14} /></a></>}>
+  return <AuthLayout page="verify" title={signInRequired ? 'Sign in to continue' : 'Verify Your Email'} description={signInRequired ? 'Continue using your existing sign-in method.' : details?.purpose === 'link' ? 'Confirm your email to securely add password sign-in.' : 'One last step before your Talk workspace.'} Icon={MailCheck} footer={<>Already verified? <a href="/sign-in">Sign in<ArrowRight size={14} /></a></>}>
     {verified ? <div className="auth-verification-success" role="status" aria-live="polite"><CheckCircle2 size={36} aria-hidden="true" /><h2>Email Verified Successfully</h2><p>Taking you to your Talk dashboard...</p></div>
+      : signInRequired ? <div role="status" aria-live="polite">
+        <p className="auth-email-help">This request cannot create a new account or replace your existing sign-in details. If you previously signed up with email, sign in with the password you originally created.</p>
+        <a className="primary-button signin-submit" href="/sign-in">Go to sign in<ArrowRight size={18} /></a>
+      </div>
       : loading ? <div className="auth-verification-loading" role="status"><LoaderCircle size={18} className="auth-loading-icon" />Loading your verification...</div>
       : loadError ? <><div className="auth-email-error" role="alert">{loadError}</div><button type="button" className="secondary-button auth-verification-retry" onClick={() => setLoadAttempt(value => value + 1)}><RefreshCw size={16} />Try again</button></>
         : !details ? <div className="signin-notice" role="status"><p>Start signup or sign in with an unverified email account in this browser to receive a verification code.</p><a href="/sign-up">Back to Sign Up<ArrowRight size={14} /></a><a href="/sign-in">Resume with email<ArrowRight size={14} /></a></div>

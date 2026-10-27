@@ -2,6 +2,10 @@
 
 Talk video meeting platform with a React frontend and an Express authentication backend, organized as an npm workspace.
 
+For the current temporary free test on this laptop, start with [Temporary free team test](deployment/TEMPORARY_FREE_TEST.md). It uses the built site, an isolated test database, and the existing LiveKit Cloud project. Public tunnel access requires separate approval.
+
+For the optional five-person cloud deployment proposal, costs and approval boundaries, see [Team testing deployment](deployment/TEAM_TESTING.md) and the [remote-device acceptance checklist](deployment/TEAM_REMOTE_TEST.md). Nothing in these guides deploys resources automatically.
+
 ## Architecture
 
 | Guide | What it explains |

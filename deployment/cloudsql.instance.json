@@ -1,0 +1,31 @@
+{
+  "name": "talk-auth-db",
+  "project": "talk-fc3dc",
+  "region": "asia-south1",
+  "databaseVersion": "POSTGRES_16",
+  "settings": {
+    "edition": "ENTERPRISE",
+    "tier": "db-f1-micro",
+    "availabilityType": "ZONAL",
+    "activationPolicy": "ALWAYS",
+    "dataDiskType": "PD_SSD",
+    "dataDiskSizeGb": "10",
+    "storageAutoResize": true,
+    "storageAutoResizeLimit": "20",
+    "deletionProtectionEnabled": true,
+    "connectorEnforcement": "REQUIRED",
+    "ipConfiguration": {
+      "ipv4Enabled": true,
+      "authorizedNetworks": [],
+      "sslMode": "ENCRYPTED_ONLY"
+    },
+    "backupConfiguration": {
+      "enabled": true,
+      "startTime": "20:00",
+      "pointInTimeRecoveryEnabled": true,
+      "transactionLogRetentionDays": 7,
+      "backupRetentionSettings": { "retainedBackups": 7, "retentionUnit": "COUNT" }
+    },
+    "userLabels": { "application": "talk", "purpose": "approved-sms-pilot" }
+  }
+}

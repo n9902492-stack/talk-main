@@ -1,3 +1,4 @@
+import {sqliteMigrationCount} from './helpers/migration-count.mjs';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -266,7 +267,7 @@ test('verification and sessions survive database reopen; migrations are idempote
   t.after(async () => { await h.close(); assert.equal(path.dirname(path.resolve(directory)), path.resolve(os.tmpdir())); rmSync(directory, { recursive: true, force: true }); });
   await h.signup(); const jar = new Map(h.jar); const code = h.delivered[0].code; await h.close();
   h = await harness({ databasePath: filename, jar });
-  assert.equal(h.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n, 3);
+  assert.equal(h.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n,sqliteMigrationCount);
   const verified = await h.verify(code); assert.equal(verified.status, 200); const sessionJar = new Map(h.jar); const userId = verified.body.user.id; await h.close();
   h = await harness({ databasePath: filename, jar: sessionJar }); t.after(h.close);
   const session = await h.request('session'); assert.equal(session.body.user.id, userId);

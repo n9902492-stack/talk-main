@@ -1,9 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Video, VideoOff, Mic, MicOff, Volume2, Check, ShieldCheck, Play, Square, Settings2, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Video, VideoOff, Mic, MicOff, Volume2, Check, ShieldCheck, Square, Settings2, UserRound, MessageCircle } from 'lucide-react';
+import BackgroundSettings from '../components/BackgroundSettings';
+import { PrejoinRecordingConsent } from '../components/MeetingRecording';
 import { useMediaPreview } from '../hooks/useMediaPreview';
+import { MeetingAccessError, meetingIdFromUrl, navigateToMeeting, requestMeetingAccess, stageMeetingJoin } from '../lib/meetingSession';
+import '../styles/prejoin-studio.css';
+import '../styles/prejoin-reference.css';
+import {guestMeeting,meetingEndpoint} from '../lib/scheduling';
 
 export default function DeviceTest() {
+  const roomId = meetingIdFromUrl();
+  const [meetingTitle, setMeetingTitle] = useState(roomId === 'talk-workshop' ? 'Social Media Marketing Workshop' : 'Talk meeting');
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    setMeetingTitle(roomId === 'talk-workshop' ? 'Social Media Marketing Workshop' : 'Talk meeting');
+    void fetch(meetingEndpoint(roomId), { credentials: 'same-origin', cache: 'no-store', signal: controller.signal })
+      .then(response => response.ok ? response.json() : null)
+      .then(value => { if (!controller.signal.aborted && typeof value?.meeting?.title === 'string' && value.meeting.title.trim()) setMeetingTitle(value.meeting.title); })
+      .catch(() => { /* Access errors remain handled by the existing Join session action. */ })
+      .finally(() => clearTimeout(timer));
+    return () => { controller.abort(); clearTimeout(timer); };
+  }, [roomId]);
   const media = useMediaPreview();
+  const currentMedia = useRef(media); currentMedia.current = media;
   const [name, setName] = useState(sessionStorage.getItem('talk-name') || '');
   const [speakerPassed, setSpeakerPassed] = useState(false);
   const [speakerTesting, setSpeakerTesting] = useState(false);
@@ -11,13 +31,18 @@ export default function DeviceTest() {
   const [recording, setRecording] = useState(false);
   const [sample, setSample] = useState('');
   const [recordError, setRecordError] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState('');
+  const [joinErrorCode, setJoinErrorCode] = useState('');
+  const joinRequest = useRef<AbortController | null>(null);
+  const joinInFlight = useRef(false);
   const recorder = useRef<MediaRecorder | null>(null);
   const sampleRef = useRef('');
   const audioRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speakerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); if (speakerTimerRef.current) clearTimeout(speakerTimerRef.current); if (recorder.current?.state === 'recording') { recorder.current.onstop = null; recorder.current.stop(); } if (sampleRef.current) URL.revokeObjectURL(sampleRef.current); void audioRef.current?.close().catch(() => {}); }, []);
+  useEffect(() => () => { joinRequest.current?.abort(); if (timerRef.current) clearTimeout(timerRef.current); if (speakerTimerRef.current) clearTimeout(speakerTimerRef.current); if (recorder.current?.state === 'recording') { recorder.current.onstop = null; recorder.current.stop(); } if (sampleRef.current) URL.revokeObjectURL(sampleRef.current); void audioRef.current?.close().catch(() => {}); }, []);
   const speakerTest = async () => {
     setSpeakerError(''); setSpeakerTesting(true);
     try {
@@ -39,24 +64,48 @@ export default function DeviceTest() {
       instance.start(); setRecording(true); timerRef.current = setTimeout(() => { if (instance.state === 'recording') instance.stop(); }, 5000);
     } catch { setRecordError('Unable to record a sample. Check that your microphone is available.'); }
   };
-  const join = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const join = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (joinInFlight.current) return;
     if (!name.trim()) { event.preventDefault(); nameRef.current?.setCustomValidity('Enter your name to join'); nameRef.current?.reportValidity(); nameRef.current?.setCustomValidity(''); return; }
-    sessionStorage.setItem('talk-name', name.trim());
+    if (media.busy || recording) { setJoinError('Finish connecting your devices or stop the microphone test before joining.'); setJoinErrorCode(''); return; }
+    joinInFlight.current = true; setJoining(true); setJoinError(''); setJoinErrorCode('');
+    const controller = new AbortController(); joinRequest.current = controller;
+    const roomId = meetingIdFromUrl();
+    try {
+      const access = await requestMeetingAccess(roomId, name.trim(), controller.signal);
+      if (controller.signal.aborted) return;
+      const selectedMedia = currentMedia.current;
+      if (selectedMedia.busy || recorder.current?.state === 'recording') throw new MeetingAccessError('devices_busy', 'Finish connecting your devices or stop the microphone test before joining.');
+      try { sessionStorage.setItem('talk-name', name.trim()); } catch { /* The active meeting also holds the display name in memory. */ }
+      stageMeetingJoin(access, { roomId, displayName: name.trim(), cameraId: selectedMedia.cameraId, micId: selectedMedia.micId, cameraOn: selectedMedia.cameraOn, micOn: selectedMedia.micOn }, selectedMedia.takeStream());
+      navigateToMeeting(`/meeting?live=1&room=${encodeURIComponent(roomId)}${guestMeeting()?'&guest=1':''}`);
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      setJoinError(error instanceof MeetingAccessError ? error.message : 'Could not join the meeting. Please try again.');
+      setJoinErrorCode(error instanceof MeetingAccessError ? error.code : '');
+    } finally { joinInFlight.current = false; if (!controller.signal.aborted) setJoining(false); }
   };
-  return <section className="device-page page-width py-12 md:py-16"><a href="/" className="back-link"><ArrowLeft size={16} />Back to home</a>
-    <div className="device-heading"><span className="eyebrow">YOUR SPACE. YOUR STAGE.</span><h1>Let’s get you ready.</h1><p>Check your camera and audio before you step into the session.</p></div>
-    <div className="device-grid"><div>
-      <div className="camera-preview"><video ref={media.videoRef} autoPlay playsInline muted className={media.cameraOn ? 'visible' : 'invisible'} aria-label="Your camera preview" />{!media.cameraOn && <div className="camera-placeholder"><span className="preview-avatar">{name.trim().slice(0, 1).toUpperCase() || <UserRound size={42} />}</span><h3>Your camera is off</h3><p>Enable your camera to see your preview.</p></div>}<div className="preview-name">{name.trim() || 'You'}<span>Preview</span></div><div className="camera-controls"><button aria-label={media.micOn ? 'Mute microphone' : 'Enable microphone'} aria-pressed={media.micOn} onClick={media.toggleMic}>{media.micOn ? <Mic size={21} /> : <MicOff size={21} />}</button><button aria-label={media.cameraOn ? 'Turn camera off' : 'Enable camera'} aria-pressed={media.cameraOn} onClick={media.toggleCamera}>{media.cameraOn ? <Video size={21} /> : <VideoOff size={21} />}</button></div></div>
-      <div className="camera-under"><ShieldCheck size={16} /><span>Your preview stays on this device.</span><button onClick={media.stop} disabled={!media.stream}>Stop devices</button></div>
-      <label className="field-label mt-6" htmlFor="display-name">Your display name</label><input ref={nameRef} id="display-name" className="form-input" value={name} onChange={event => setName(event.target.value)} placeholder="Enter your name" maxLength={80} required />
-    </div><aside className="device-settings"><div className="flex items-center gap-2 mb-6"><Settings2 size={19} /><h2 className="text-lg font-bold">Audio & video settings</h2></div>
-      <button className="primary-button w-full justify-center mb-5" disabled={media.busy} onClick={() => void media.enable()}>{media.busy ? 'Connecting devices…' : 'Enable camera & microphone'}</button>
-      {media.error && <p role="alert" className="inline-error mb-5">{media.error}</p>}
-      <div className="device-setting"><label htmlFor="camera-select"><Video size={17} />Camera<span className={media.cameraOn ? 'device-ok' : ''}>{media.cameraOn ? 'Ready' : 'Off'}</span></label><select id="camera-select" value={media.cameraId} disabled={!media.stream || recording} onChange={event => void media.enable(true, media.micOn, event.target.value, media.micId)}><option value="">Default camera</option>{media.devices.filter(device => device.kind === 'videoinput').map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${index + 1}`}</option>)}</select></div>
-      <div className="device-setting"><label htmlFor="mic-select"><Mic size={17} />Microphone<span className={media.micOn ? 'device-ok' : ''}>{media.micOn ? 'Ready' : 'Off'}</span></label><select id="mic-select" value={media.micId} disabled={!media.stream || recording} onChange={event => void media.enable(media.cameraOn, true, media.cameraId, event.target.value)}><option value="">Default microphone</option>{media.devices.filter(device => device.kind === 'audioinput').map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `Microphone ${index + 1}`}</option>)}</select><div className="audio-meter" aria-label="Microphone input level" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(media.micOn ? media.level : 0)}>{Array.from({ length: 24 }, (_, index) => <span key={index} className={media.micOn && media.level > index * 4 ? 'lit' : ''} />)}</div><p className="text-xs text-secondary">Speak a little. The bars move when your microphone picks up sound.</p></div>
-      <div className="device-setting"><label><Volume2 size={17} />Speaker<span className={speakerPassed ? 'device-ok' : ''}>{speakerPassed ? 'Checked' : 'Not tested'}</span></label><p className="text-sm text-secondary mb-3">Uses your system’s selected audio output.</p><button className="secondary-button w-full justify-center" disabled={speakerTesting} onClick={() => void speakerTest()}><Volume2 size={16} />{speakerTesting ? 'Playing test sound…' : 'Play test sound'}</button><button className="text-xs underline text-primary mt-3" onClick={() => setSpeakerPassed(true)}><Check size={13} className="inline mr-1" />I can hear the sound</button>{speakerError && <p role="alert" className="inline-error mt-2">{speakerError}</p>}</div>
-      <div className="device-setting border-0"><button className="secondary-button w-full justify-center" onClick={record}>{recording ? <Square size={15} /> : <Mic size={15} />}{recording ? 'Stop recording' : 'Record a 5-second mic test'}</button>{recording && <p className="text-xs text-primary mt-2" role="status">Recording… say something into your microphone.</p>}{recordError && <p role="alert" className="inline-error mt-2">{recordError}</p>}{sample && <audio controls src={sample} className="w-full mt-3" aria-label="Play your microphone test" />}</div>
-    </aside></div>
-    <div className="join-row"><div><h3 className="font-bold">Social Media Marketing Workshop</h3><p className="text-sm text-secondary mt-1">Talk session preview · Join when you’re ready</p></div><a href="/meeting" className="primary-button" onClick={join}>Join session<ArrowRight size={17} /></a></div>
-  </section>;
+  return <main className="device-page prejoin-studio">
+    <header className="prejoin-header"><a href="/" className="prejoin-brand" aria-label="Talk home"><span><MessageCircle size={25} /></span>Talk</a><div className="prejoin-meeting-title"><strong>{meetingTitle}</strong><span>Talk session preview</span></div><span className="prejoin-security"><ShieldCheck size={16} />Secure meeting access</span><a href="/" className="back-link"><ArrowLeft size={16} />Back to home</a></header>
+    <div className="prejoin-content">
+      <div className="device-heading"><div><span className="eyebrow">YOUR SPACE. YOUR STAGE.</span><h1>Let’s get you ready.</h1></div><p>Check your camera and audio before you step into the session.</p></div>
+      <div className="device-grid"><div className="prejoin-preview-column">
+        <div className="camera-preview"><video ref={media.videoRef} autoPlay playsInline muted className={media.cameraOn ? 'visible' : 'invisible'} aria-label="Your camera preview" /><span className="prejoin-preview-label"><Video size={14} />Camera preview</span>{!media.cameraOn && <div className="camera-placeholder"><span className="preview-avatar">{name.trim().slice(0, 1).toUpperCase() || <UserRound size={42} />}<span className="prejoin-avatar-status"><VideoOff size={16} /></span></span><h3>Your camera is off</h3><p>Enable your camera to see your preview.</p></div>}<div className="preview-name">{name.trim() || 'You'}<span>Preview</span></div><div className="camera-controls"><button aria-label={media.micOn ? 'Mute microphone' : 'Enable microphone'} aria-pressed={media.micOn} onClick={media.toggleMic}>{media.micOn ? <Mic size={21} /> : <MicOff size={21} />}</button><button aria-label={media.cameraOn ? 'Turn camera off' : 'Enable camera'} aria-pressed={media.cameraOn} onClick={media.toggleCamera}>{media.cameraOn ? <Video size={21} /> : <VideoOff size={21} />}</button></div></div>
+        <div className="camera-under"><ShieldCheck size={16} /><span>Your preview stays on this device.</span><button onClick={media.stop} disabled={!media.stream}>Stop devices</button></div>
+        <div className="prejoin-identity"><label className="field-label" htmlFor="display-name"><UserRound size={16} />Your display name</label><input ref={nameRef} id="display-name" className="form-input" value={name} onChange={event => setName(event.target.value)} placeholder="Enter your name" maxLength={80} required /></div>
+        {joinError && <p className="inline-error prejoin-join-error" role="alert">{joinError}{joinErrorCode === 'sign_in_required' && <> <a href="/sign-in" className="signin-text-button">Sign in to Talk</a></>}{joinErrorCode === 'confirmation_required' && <> <a href="/confirm-sign-in" className="signin-text-button">Confirm sign-in</a></>}</p>}
+        <div className="join-row"><div><h3 className="font-bold">{meetingTitle}</h3><p className="text-sm text-secondary mt-1">Talk session preview · Join when you’re ready</p></div><a href={`/meeting?live=1&room=${encodeURIComponent(meetingIdFromUrl())}`} className="primary-button" onClick={event => void join(event)} aria-disabled={joining} aria-busy={joining}>{joining ? 'Joining…' : 'Join session'}<ArrowRight size={17} /></a></div>
+      </div><aside className="device-settings" aria-labelledby="prejoin-settings-heading"><div className="prejoin-settings-heading"><span><Settings2 size={19} /></span><h2 id="prejoin-settings-heading">Audio & video settings</h2></div>
+        {!guestMeeting() && <PrejoinRecordingConsent meetingId={roomId} />}
+        <button className="primary-button prejoin-enable" disabled={media.busy} onClick={() => void media.enable()}><Video size={17} />{media.busy ? 'Connecting devices…' : 'Enable camera & microphone'}</button>
+        {media.error && <p role="alert" className="inline-error prejoin-device-error">{media.error}</p>}
+        <div className="device-setting"><label htmlFor="camera-select"><Video size={17} />Camera<span className={media.cameraOn ? 'device-ok' : ''}>{media.cameraOn ? 'Ready' : 'Off'}</span></label><select id="camera-select" value={media.cameraId} disabled={!media.stream || recording} onChange={event => void media.enable(true, media.micOn, event.target.value, media.micId)}><option value="">Default camera</option>{media.devices.filter(device => device.kind === 'videoinput').map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${index + 1}`}</option>)}</select></div>
+        <div className="device-setting"><label htmlFor="mic-select"><Mic size={17} />Microphone<span className={media.micOn ? 'device-ok' : ''}>{media.micOn ? 'Ready' : 'Off'}</span></label><select id="mic-select" value={media.micId} disabled={!media.stream || recording} onChange={event => void media.enable(media.cameraOn, true, media.cameraId, event.target.value)}><option value="">Default microphone</option>{media.devices.filter(device => device.kind === 'audioinput').map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `Microphone ${index + 1}`}</option>)}</select><div className="audio-meter" aria-label="Microphone input level" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(media.micOn ? media.level : 0)}>{Array.from({ length: 24 }, (_, index) => <span key={index} className={media.micOn && media.level > index * 4 ? 'lit' : ''} />)}</div><p className="text-xs text-secondary">Speak a little. The bars move when your microphone picks up sound.</p></div>
+        <details className="talk-prejoin-backgrounds"><summary>Backgrounds</summary><BackgroundSettings prejoin enabled={media.cameraOn} sourceTrack={media.stream?.getVideoTracks()[0] ?? null} status={media.backgroundStatus} /></details>
+        <div className="device-setting prejoin-speaker"><label><Volume2 size={17} />Speaker<span className={speakerPassed ? 'device-ok' : ''}>{speakerPassed ? 'Checked' : 'Not tested'}</span></label><p className="text-sm text-secondary mb-3">Uses your system’s selected audio output.</p><button className="secondary-button w-full justify-center" disabled={speakerTesting} onClick={() => void speakerTest()}><Volume2 size={16} />{speakerTesting ? 'Playing test sound…' : 'Play test sound'}</button><button className="text-xs underline text-primary mt-3" onClick={() => setSpeakerPassed(true)}><Check size={13} className="inline mr-1" />I can hear the sound</button>{speakerError && <p role="alert" className="inline-error mt-2">{speakerError}</p>}</div>
+        <div className="device-setting prejoin-record-test"><button className="secondary-button w-full justify-center" onClick={record}>{recording ? <Square size={15} /> : <Mic size={15} />}{recording ? 'Stop recording' : 'Record a 5-second mic test'}</button>{recording && <p className="text-xs text-primary mt-2" role="status">Recording… say something into your microphone.</p>}{recordError && <p role="alert" className="inline-error mt-2">{recordError}</p>}{sample && <audio controls src={sample} className="w-full mt-3" aria-label="Play your microphone test" />}</div>
+      </aside></div>
+    </div>
+  </main>;
 }

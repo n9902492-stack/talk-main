@@ -1,0 +1,29 @@
+# Recording quality and transcript accuracy — 22 October 2026
+
+## Changes
+
+- `frontend/src/hooks/useMediaPreview.ts`: choosing a specific camera now retains the ideal 1280×720 capture request. Choosing a specific microphone retains echo cancellation and noise suppression. Device IDs no longer replace these capture settings. Unsupported resolutions remain ideal constraints, so lower-capability cameras can still work.
+- `backend/src/recorder-client.mjs`: increase video encoding target from 1.8 to 4.5 Mbps and audio from 96 to 128 kbps. Fill more of each camera tile, overlay bounded participant labels, and put the recording watermark separately at the top right. Explicitly request the highest available LiveKit video layer and wait up to five seconds for the published HD dimensions before capture; actual bandwidth can still limit delivery. Add a compressor to reduce clipping when voices overlap. Keep a conservative 15 fps and a 100 ms silent audio buffer after testing higher frame rates under this laptop's load. No audio reaches physical speakers.
+- `backend/src/recording-transcriber.mjs`: preserve audio timeline gaps during PCM preparation with `aresample=async=1:first_pts=0`; use the already-installed multilingual small-q5_1 model for local English when available. Existing global model overrides remain effective; `WHISPER_ENGLISH_MODEL_PATH` is an optional language-specific override. Automatic detection still uses the lighter configured model; Hindi retains its existing model route. No model is downloaded and no translation flag is enabled.
+- `backend/src/meeting-recordings.mjs`: authorized regeneration accepts a validated spoken-language choice (auto/en/hi), rechecks access and job status inside the transaction, prevents duplicate queued jobs, and records the selected language in the audit. Existing media and immutable transcript revisions are preserved. No schema migration required.
+- `frontend/src/pages/MeetingHistory.tsx`, `frontend/src/styles/recordings.css`: add spoken-language selection and Regenerate transcript / Retry transcription controls on the existing Transcript tab. Regeneration is explicit; existing transcripts are not silently rewritten.
+- `.env.example`, `deployment/RECORDING_TRANSCRIPTION.md`: document the optional override and current quality profile. `.env.local` and `.env.tunnel-test.local` were not changed.
+
+## Verification
+
+- Direct local model comparison against the same public-domain English reference: base and small-q5_1 both had 0% word error; approximately 5.0 and 13.3 seconds respectively. Evidence: `artifacts/qa/recording-quality-model-benchmark.json`. This clean sample does not demonstrate a universal accuracy improvement; the larger model trades additional processing time for a higher-capacity recognizer.
+- Final actual LiveKit recording test: `artifacts/qa/recording-quality-Vnz0GM/results.json`. Two isolated browser participants, generated HD chart, and a complete public speech sample published once through real WebRTC. The actual 1280×720 file was saved (4,833,809 bytes), decoded and played in Meeting Details. Local Whisper produced 0% word error against the known complete utterance. The regeneration UI retained the media key/bytes and prior revision. Video and transcript screenshots are in the same directory. Final video and prior matching transcript/control screenshots were visually inspected during verification.
+- Sync with the final quality profile: `artifacts/qa/recording-sync-o5UaLo/results.json`. A shared-clock synthetic flash/beep source avoids independent fake-device startup offsets. The unchanged test limits passed: continuous audio (20.64 seconds of samples across 20.662 seconds of timestamps), pulse offsets within 140 ms, and real browser playback.
+- Higher-frame-rate candidates did not meet the strict timing checks under observed load and were not retained. Early timing runs also exposed independent fake-camera/audio startup offsets; the maintained regression now publishes both synthetic signals from one clock. Assertions were not relaxed.
+- Recording, transcription model routing, worker lifecycle, authorization, concurrency and transcript-revision regressions: 52 passed, 0 failed (`artifacts/qa/recording-quality-regression.tap`). Includes explicit language validation, participant access denial, duplicate regeneration prevention and immutable previous revisions.
+- Real fake-device test: ideal HD settings and actual 1280×720 tracks retained after explicit camera and microphone selection; audio processing settings retained. Passed with exit 0 (`artifacts/qa/recording-quality-device-selection-final.log`).
+- TypeScript passed. Production-style frontend build passed in isolated `artifacts/qa/phase10-build`.
+- One final presentation rerun initially failed before joining because Windows assigned Chrome-blocked port 6000. The isolated browser harness now selects another ephemeral port if that happens; the final recording/accuracy test passed.
+
+## Use and limits
+
+For a saved transcript with wrong words, open **Transcript → Language spoken in this recording**, select English or Hindi as appropriate, then **Regenerate transcript**. Processing is local and can take minutes, particularly for Hindi. The media remains unchanged. Automatic detection and mixed-language speech remain fallible; names, noise and overlapping voices may require review.
+
+New recordings use the higher-detail profile. Existing low-resolution, clipped or incomplete media cannot gain missing information through reprocessing. Higher bitrate can increase storage use and reach the existing segment byte limit sooner. The source camera and connection still bound achievable quality; this is not a physical-device or long-meeting certification.
+
+No paid API, Gemini request, model download, deployment or public test-environment activation occurred. Public recording restrictions, consent and existing private-content authorization remain in effect.

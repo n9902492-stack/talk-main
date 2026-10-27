@@ -10,13 +10,13 @@ type GoogleIdentityApi = {
     ux_mode: 'popup';
   }) => void;
   renderButton: (element: HTMLElement, options: {
-    type: 'standard';
+    type: 'standard' | 'icon';
     theme: 'outline';
     size: 'large';
     text: 'continue_with';
-    shape: 'pill';
-    logo_alignment: 'left';
-    width: string;
+    shape: 'pill' | 'circle';
+    logo_alignment?: 'left';
+    width?: string;
     state: string;
   }) => void;
   disableAutoSelect: () => void;
@@ -101,12 +101,14 @@ export function activateGoogleIdentity(clientId: string, nonce: string, onCreden
     initializedChallenge = challenge;
   }
   return {
-    render: (element: HTMLElement, width: number) => {
+    render: (element: HTMLElement, width: number, variant: 'standard' | 'icon' = 'standard') => {
       if (activeOwner !== owner) return;
       element.replaceChildren();
       api.renderButton(element, {
-        type: 'standard', theme: 'outline', size: 'large', text: 'continue_with',
-        shape: 'pill', logo_alignment: 'left', width: String(Math.min(400, Math.max(1, Math.floor(width)))), state,
+        theme: 'outline', size: 'large', text: 'continue_with', state,
+        ...(variant === 'icon'
+          ? { type: 'icon', shape: 'circle' }
+          : { type: 'standard', shape: 'pill', logo_alignment: 'left', width: String(Math.min(400, Math.max(1, Math.floor(width)))) }),
       });
     },
     dispose: () => { if (activeOwner === owner) activeOwner = undefined; },

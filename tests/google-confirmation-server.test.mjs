@@ -1,3 +1,4 @@
+import {sqliteMigrationCount} from './helpers/migration-count.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { once } from 'node:events';
@@ -198,7 +199,7 @@ test('pending Google continuation survives restart and confirmed state persists 
   const google = await h.google(); const jar = new Map(h.jar); await h.close();
   h = await harness({ databasePath, jar });
   assert.deepEqual((await h.request('session')).body, google.body);
-  assert.equal(h.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n, 3);
+  assert.equal(h.db.prepare('SELECT COUNT(*) AS n FROM schema_migrations').get().n,sqliteMigrationCount);
   const confirmed = await h.confirm(google.body.csrfToken); assert.equal(confirmed.status, 200);
   const confirmedJar = new Map(h.jar); await h.close();
   h = await harness({ databasePath, jar: confirmedJar });

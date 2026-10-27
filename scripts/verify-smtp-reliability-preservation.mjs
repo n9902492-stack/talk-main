@@ -1,0 +1,18 @@
+// Offline read-only verification of the new fixture and original consumed guard.
+import fs from 'node:fs';import {createHash} from 'node:crypto';import {DatabaseSync} from 'node:sqlite';import assert from 'node:assert/strict';import dotenv from 'dotenv';
+import {createEmailLinks} from '../backend/src/scheduling/email-links.mjs';import {emailBookingSql} from '../backend/src/scheduling/email-outbox.mjs';
+const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const before=JSON.parse(fs.readFileSync('artifacts/qa/smtp-reliability-preservation-before.json','utf8'));
+const unchanged=Object.entries(before).map(([file,hash])=>({file,unchanged:sha(file)===hash}));assert.ok(unchanged.every(v=>v.unchanged));
+const old=new DatabaseSync('data/booking-link-test/confirmation-flow-vBfobG/confirmation-send-guard.sqlite',{readOnly:true});let original;
+try{original=old.prepare('SELECT consumed,status FROM confirmation_attempt').get();assert.equal(original.consumed,1);assert.equal(original.status,'failed_or_acceptance_unknown');}finally{old.close();}
+const fixture=JSON.parse(fs.readFileSync('artifacts/qa/smtp-reliability-fixture.private.json','utf8'));
+const raw=new DatabaseSync(fixture.databasePath,{readOnly:true});let b,j;
+try{assert.equal(raw.prepare('SELECT COUNT(*) n FROM scheduling_bookings').get().n,1);assert.equal(raw.prepare('SELECT COUNT(*) n FROM accounts').get().n,1);assert.equal(raw.prepare('SELECT COUNT(*) n FROM scheduling_email_attempts').get().n,0);b=raw.prepare(emailBookingSql).get(fixture.bookingId);j=raw.prepare('SELECT status,attempts FROM scheduling_jobs WHERE id=?').get(fixture.jobId);assert.equal(j.status,'queued');assert.equal(j.attempts,0);assert.equal(raw.prepare("SELECT COUNT(*) n FROM scheduling_jobs WHERE status!='cancelled' AND id<>?").get(fixture.jobId).n,0);}finally{raw.close();}
+const env=dotenv.parse(fs.readFileSync('.env.local')),test=dotenv.parse(fs.readFileSync('.env.tunnel-test.local'));assert.notEqual(env.SCHEDULING_EMAIL_ENABLED,'true');assert.notEqual(env.WHITEBOARD_CLOUD_AI_ENABLED,'true');assert.notEqual(env.WHITEBOARD_CLOUD_AI_OPERATOR_APPROVED,'true');assert.equal(test.TUNNEL_TEST_EMAILS.split(',').length,5);
+const invitation=JSON.parse(fs.readFileSync(fixture.directory+'/invitation.private.json','utf8')),links=createEmailLinks({baseUrl:'https://pending-public-approval.invalid',secret:env.SCHEDULING_EMAIL_LINK_SECRET});
+assert.equal(links.verify(b,invitation.credential,Date.now()),true);assert.equal(links.verify(b,invitation.credential,b.ends_at+3600000),true);assert.equal(links.verify(b,invitation.credential,b.ends_at+3600001),false);
+const guard=new DatabaseSync(fixture.guardPath,{readOnly:true});let preparedGuard;try{preparedGuard=guard.prepare('SELECT status,consumed FROM confirmation_attempt').get();assert.equal(preparedGuard.status,'awaiting_public_verification');assert.equal(preparedGuard.consumed,0);}finally{guard.close();}
+for(const name of ['confirmation.draft.html','confirmation.draft.txt']){const body=fs.readFileSync(fixture.directory+'/'+name,'utf8');assert.ok(!body.includes(invitation.credential));assert.ok(!body.includes('https://'));assert.ok(body.includes('[SECURE_TALK_JOIN_LINK_PENDING_PUBLIC_APPROVAL]'));}
+const report={checkedAt:new Date().toISOString(),unchanged,originalAttempt:{consumed:true,status:original.status,classification:'UNKNOWN_AMBIGUOUS'},newGuard:preparedGuard,invitationValid:true,validThroughJoiningWindow:true,newFixtureRealSendAttempts:0,allowlistCount:5,automaticSmtpEnabled:false,cloudAiEnabled:false};
+fs.writeFileSync('artifacts/qa/smtp-reliability-preservation-after.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

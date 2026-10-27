@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 
-const names = new Set(['talk_session', 'talk_auth_challenge', 'talk_email_verification', 'talk_phone_verification']);
+const names = new Set(['talk_session', 'talk_auth_challenge', 'talk_email_verification', 'talk_phone_verification', 'talk_password_reset']);
 const cookieName = '__session';
 const maxAge = 24 * 60 * 60 * 1000;
 const validToken = value => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
